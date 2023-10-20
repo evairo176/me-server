@@ -37,15 +37,15 @@ model Blog {
   authorId  String?
   slug      String @unique
   title     String 
-  banner    String? 
+  image     String?
   des       String?
-  content   Json[]
-  tags      String[]
+  content   String
+  // tags      String[]
   Author      User?   @relation(fields: [authorId], references: [id])
-  total_likes Int   @default(0) 
-  total_comments Int   @default(0) 
-  total_reads Int   @default(0) 
-  total_parent_comments Int   @default(0) 
+  // total_likes Int   @default(0) 
+  // total_comments Int   @default(0) 
+  // total_reads Int   @default(0) 
+  // total_parent_comments Int   @default(0) 
   draft Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

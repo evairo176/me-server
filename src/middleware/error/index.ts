@@ -24,14 +24,12 @@ export const errorHandler = (
 
 export const validate = (schema: any) => (req: any, res: any, next: any) => {
   try {
-    schema.parse({
-      body: req.body,
-      query: req.query,
-      params: req.params,
-    });
-
+    schema.parse(req.body);
     next();
   } catch (err: any) {
-    return res.status(400).send(err.errors);
+    return res.status(400).send({
+      message: "Invalid request",
+      error: err.errors,
+    });
   }
 };

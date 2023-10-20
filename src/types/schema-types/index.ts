@@ -27,12 +27,12 @@ export interface Blog {
   banner: string;
   des?: string;
   content: any[]; // You might want to define a more specific type for content.
-  tags: string[];
+  // tags: string[];
   Author: UserInterface[];
-  total_likes: number;
-  total_comments: number;
-  total_reads: number;
-  total_parent_comments: number;
+  // total_likes: number;
+  // total_comments: number;
+  // total_reads: number;
+  // total_parent_comments: number;
   draft: boolean;
   createdAt: Date;
   updatedAt: Date;

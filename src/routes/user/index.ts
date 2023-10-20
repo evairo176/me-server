@@ -1,16 +1,15 @@
 import express from "express";
-import { createPostController } from "../../controller/blog";
-import { photoUpload, postImgResize } from "../../middleware/uploads";
 import { validate } from "../../middleware/error";
-import { UserSchema } from "../../schema/blog";
+import { LoginSchema, RegisterSchema } from "../../lib/form-schema";
+import {
+  detailUserController,
+  userLoginController,
+  userRegisterController,
+} from "../../controller/user";
+import { authMiddleware } from "../../middleware/auth";
 
-export const blogsRoutes = express.Router();
+export const usersRoutes = express.Router();
 
-blogsRoutes.post(
-  "/",
-  validate(UserSchema),
-  photoUpload.single("image"),
-  // mencoba
-  postImgResize,
-  createPostController
-);
+usersRoutes.post("/register", validate(RegisterSchema), userRegisterController);
+usersRoutes.post("/login", validate(LoginSchema), userLoginController);
+usersRoutes.get("/:id", authMiddleware, detailUserController);
