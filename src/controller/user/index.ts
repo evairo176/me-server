@@ -39,7 +39,7 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
   ];
 
   // check if user is already registered
-  const userExists = await prisma.user.findUnique({
+  const userExists = await prisma.user.findFirst({
     where: { email: req?.body?.email },
   });
 
@@ -82,7 +82,7 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
 export const userLoginController = expressAsyncHandler(async (req, res) => {
   const { email, password } = req.body;
   // check if user exists
-  const userFound = await prisma.user.findUnique({
+  const userFound = await prisma.user.findFirst({
     where: {
       email: email,
     },
@@ -119,7 +119,7 @@ export const detailUserController = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
 
   // check id
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
       id: id,
     },
@@ -127,6 +127,8 @@ export const detailUserController = expressAsyncHandler(async (req, res) => {
       Blog: true,
     },
   });
+
+  // console.log(user);
 
   if (!user) throw new Error("User not exist");
 

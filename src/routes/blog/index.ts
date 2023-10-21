@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createController,
+  deleteController,
   editController,
   updateController,
 } from "../../controller/blog";
@@ -15,7 +16,6 @@ blogsRoutes.post(
   "/",
   authMiddleware,
   photoUpload.single("image"),
-  postImgResize,
   validate(CreateBlogSchema),
   createController
 );
@@ -24,6 +24,6 @@ blogsRoutes.put(
   "/:id",
   authMiddleware,
   photoUpload.single("image"),
-  postImgResize,
   updateController
 );
+blogsRoutes.delete("/:id", authMiddleware, deleteController);

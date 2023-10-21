@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import slug from "slug";
 import { prisma } from "../../lib/prisma-client";
-import { deleteFile } from "../../helper/helper";
+import { deleteFile, deleteImage, sharpUpload } from "../../helper/helper";
 const fs = require("fs");
 
 //----------------------------------------------
@@ -13,7 +13,7 @@ export const createController = expressAsyncHandler(
     const { id } = req.user;
     const slugTitle = slug(req.body.title);
 
-    const checkIfExist = await prisma.blog.findUnique({
+    const checkIfExist = await prisma.blog.findFirst({
       where: {
         slug: slugTitle,
       },
@@ -25,10 +25,11 @@ export const createController = expressAsyncHandler(
       );
     }
 
+    // console.log(req.body.image);
     let localPath = "";
-    if (req?.file?.filename) {
+    if (req?.file) {
       // // 1. get the path to img
-      localPath = `public/images/blogs/${req.file.filename}`;
+      localPath = await sharpUpload(req.file, req?.body?.title);
     }
 
     try {
@@ -47,7 +48,6 @@ export const createController = expressAsyncHandler(
         blog: blog,
       });
     } catch (error) {
-      fs.unlinkSync(localPath);
       res.json(error);
     }
   }
@@ -60,9 +60,15 @@ export const createController = expressAsyncHandler(
 export const editController = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  console.log(req.baseUrl);
+  const checkIfExist = await prisma.blog.findFirst({
+    where: {
+      id: id,
+    },
+  });
+  if (!checkIfExist) throw new Error(`Blog not found`);
+
   try {
-    const blog = await prisma.blog.findUnique({
+    const blog = await prisma.blog.findFirst({
       where: {
         id: id,
       },
@@ -89,7 +95,7 @@ export const updateController = expressAsyncHandler(
     const { authorId } = req.user;
     const slugTitle = slug(req?.body?.title);
 
-    const blog = await prisma.blog.findUnique({
+    const blog = await prisma.blog.findFirst({
       where: {
         id: id,
       },
@@ -99,7 +105,7 @@ export const updateController = expressAsyncHandler(
       throw new Error(`Blog not found`);
     }
 
-    const checkSlug = await prisma.blog.findUnique({
+    const checkSlug = await prisma.blog.findFirst({
       where: {
         slug: slugTitle,
       },
@@ -111,19 +117,23 @@ export const updateController = expressAsyncHandler(
       );
     }
 
-    const bannerOld = blog?.image;
+    const bannerOld = blog?.image || "";
     let localPath = "";
 
-    if (req?.file?.filename) {
+    if (req?.file) {
       // // 1. get the path to img
-      localPath = `public/images/blogs/${req.file.filename}`;
-
-      fs.unlinkSync(bannerOld);
+      localPath = await sharpUpload(
+        req.file,
+        req?.body?.title ? req?.body?.title : blog?.title
+      );
+      if (localPath != "") {
+        deleteImage(bannerOld);
+      }
     }
     const imageUrl = localPath !== "" ? localPath : bannerOld;
 
     try {
-      const postUpdate = await prisma.blog.update({
+      const blogUpdate = await prisma.blog.update({
         data: {
           ...req.body,
           authorId: authorId,
@@ -135,10 +145,12 @@ export const updateController = expressAsyncHandler(
           id: id,
         },
       });
-      res.json(postUpdate);
+      res.json({
+        message: `Updated blog successfully`,
+        blog: blogUpdate,
+      });
     } catch (error) {
       res.json(error);
-      fs.unlinkSync(localPath);
     }
   }
 );
@@ -147,24 +159,31 @@ export const updateController = expressAsyncHandler(
 // delete blog
 //----------------------------------------------
 
-const deleteController = expressAsyncHandler(async (req, res) => {
+export const deleteController = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
   // check validation
-  const checkIfExist = await prisma.blog.findUnique({
+  const checkIfExist = await prisma.blog.findFirst({
     where: {
       id: id,
     },
   });
-  if (checkIfExist) throw new Error(`Blog not found`);
+  if (!checkIfExist) throw new Error(`Blog not found`);
 
   try {
-    const deletePost = await prisma.blog.delete({
+    const deleteBlog = await prisma.blog.delete({
       where: {
         id: id,
       },
     });
 
-    res.json(deletePost);
+    if (deleteBlog?.image != "") {
+      deleteImage(deleteBlog?.image || "");
+    }
+
+    res.json({
+      message: `Deleted blog successfully`,
+      blog: deleteBlog,
+    });
   } catch (error) {
     res.json(error);
   }

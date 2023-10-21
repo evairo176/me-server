@@ -1,5 +1,8 @@
+import path from "path";
+import sharp from "sharp";
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
+const multer = require("multer");
 
 export const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "20d" });
@@ -27,19 +30,36 @@ export const deleteFile = (filePath: any) => {
   });
 };
 
-// const fs = require('fs');
-// const path = require('path');
+export const sharpUpload = async (file: any, title: string) => {
+  //check if there no file to resize
 
-// // Function to delete an existing image file
-// function deleteImage(imagePath) {
-//   fs.unlink(imagePath, (err) => {
-//     if (err) {
-//       console.error('Error deleting the image file:', err);
-//     } else {
-//       console.log('Image file has been deleted.');
-//     }
-//   });
-// }
+  if (!file) throw new Error(`Image file not found`);
+  const filename = `${title}-${Date.now()}.webp`;
+  const pathUploadFile = "public/images/blogs/";
+  const pathSave = "images/blogs/";
+  const pathImage = pathSave + filename;
+
+  await sharp(file.buffer)
+    // .resize(500, 500)
+    .toFormat("webp")
+    .webp({
+      quality: 70,
+    })
+    .toFile(path.join(pathUploadFile + filename));
+
+  return pathImage;
+};
+
+// Function to delete an existing image file
+export const deleteImage = async (imagePath: string) => {
+  await fs.unlink(imagePath, (err: any) => {
+    if (err) {
+      throw new Error("Error deleting the image file:", err);
+    } else {
+      console.log("Image file has been deleted.");
+    }
+  });
+};
 
 // // Function to save a new image with a specified path and name
 // function saveImage(tempImagePath, newName) {

@@ -24,7 +24,7 @@ export interface Blog {
   authorId: string;
   slug: string;
   title: string;
-  banner: string;
+  image: string;
   des?: string;
   content: any[]; // You might want to define a more specific type for content.
   // tags: string[];
