@@ -21,7 +21,7 @@ export const deleteFile = (filePath: any) => {
       // File exists, so delete it
       fs.unlink(filePath, (err: any) => {
         if (err) {
-          throw new Error("Error deleting the image file:", err);
+          throw new Error("Error deleting the image file:");
         } else {
           console.log("Image file has been deleted.");
         }
@@ -54,7 +54,7 @@ export const sharpUpload = async (file: any, title: string) => {
 export const deleteImage = async (imagePath: string) => {
   await fs.unlink(imagePath, (err: any) => {
     if (err) {
-      throw new Error("Error deleting the image file:", err);
+      throw new Error("Error deleting the image file:");
     } else {
       console.log("Image file has been deleted.");
     }
