@@ -15,7 +15,7 @@ const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)("tiny"));
-// show image static
+// show image
 app.use(express_1.default.static("public"));
 // blogs routes
 app.use("/api/blogs", blog_1.blogsRoutes);
