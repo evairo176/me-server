@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 
-import { errorHandler, notFound } from "./src/middleware/error";
-import { blogsRoutes } from "./src/routes/blog";
-import { usersRoutes } from "./src/routes/user";
+import { errorHandler, notFound } from "./middleware/error";
+import { blogsRoutes } from "./routes/blog";
+import { usersRoutes } from "./routes/user";
 
 dotenv.config();
 
