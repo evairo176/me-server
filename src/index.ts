@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("tiny"));
-// show image
+// show image static
 app.use(express.static("public"));
 
 // blogs routes
