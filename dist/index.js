@@ -29,4 +29,4 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log("Express server listening on port: " + port);
 });
-//# sourceMappingURL=server.js.map
+//# sourceMappingURL=index.js.map
