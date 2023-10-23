@@ -39,6 +39,11 @@ export const sharpUpload = async (file: any, title: string) => {
   const pathSave = "images/blogs/";
   const pathImage = pathSave + filename;
 
+  // Ensure the directory exists, or create it
+  if (!fs.existsSync(pathUploadFile)) {
+    fs.mkdirSync(pathUploadFile, { recursive: true });
+  }
+
   await sharp(file.buffer)
     // .resize(500, 500)
     .toFormat("webp")

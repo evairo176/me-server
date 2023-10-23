@@ -55,6 +55,10 @@ const sharpUpload = (file, title) => __awaiter(void 0, void 0, void 0, function*
     const pathUploadFile = "public/images/blogs/";
     const pathSave = "images/blogs/";
     const pathImage = pathSave + filename;
+    // Ensure the directory exists, or create it
+    if (!fs.existsSync(pathUploadFile)) {
+        fs.mkdirSync(pathUploadFile, { recursive: true });
+    }
     yield (0, sharp_1.default)(file.buffer)
         // .resize(500, 500)
         .toFormat("webp")
