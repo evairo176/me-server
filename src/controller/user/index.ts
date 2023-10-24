@@ -124,7 +124,15 @@ export const detailUserController = expressAsyncHandler(async (req, res) => {
       id: id,
     },
     include: {
-      Blog: true,
+      Blog: {
+        include: {
+          Categories: true,
+          Tags: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
   });
 

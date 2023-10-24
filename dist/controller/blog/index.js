@@ -17,7 +17,33 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
 const helper_1 = require("../../helper/helper");
+const library_1 = require("@prisma/client/runtime/library");
 const fs = require("fs");
+//----------------------------------------------
+// create tag
+//----------------------------------------------
+function insertTagsIfNotExist(tagArray) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const createdTags = [];
+        for (const tagName of tagArray) {
+            try {
+                const tag = yield prisma_client_1.prisma.tag.upsert({
+                    where: { name: tagName },
+                    create: {
+                        name: tagName,
+                    },
+                    update: {},
+                });
+                createdTags.push(tag);
+            }
+            catch (error) {
+                // Handle any errors, such as unique constraint violations (duplicate tag names)
+                console.error("Error inserting tag:", error);
+            }
+        }
+        return createdTags;
+    });
+}
 //----------------------------------------------
 // create blog
 //----------------------------------------------
@@ -39,9 +65,16 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
         // // 1. get the path to img
         localPath = yield (0, helper_1.sharpUpload)(req.file, (_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.title);
     }
+    console.log(req.body.tags);
+    const tags = JSON.parse(req.body.Tags);
     try {
         const blog = yield prisma_client_1.prisma.blog.create({
-            data: Object.assign(Object.assign({}, req.body), { authorId: id, slug: slugTitle, image: localPath, content: req.body.content }),
+            data: Object.assign(Object.assign({}, req.body), { authorId: id, slug: slugTitle, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
+                    connectOrCreate: tags.map((tag) => ({
+                        where: { name: tag },
+                        create: { name: tag },
+                    })),
+                } }),
         });
         res.json({
             message: `Blog was created successfully`,
@@ -49,6 +82,13 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
         });
     }
     catch (error) {
+        if (error instanceof library_1.PrismaClientValidationError) {
+            res.json(error);
+            console.error("Prisma Validation Error Message:", error.message);
+        }
+        else {
+            console.error("Non-Prisma Validation Error:", error);
+        }
         res.json(error);
     }
 }));

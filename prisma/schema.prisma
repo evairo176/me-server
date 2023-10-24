@@ -32,21 +32,42 @@ model User {
   Blog      Blog[]
 }
 
+model Category {
+  id       String  @id @default(cuid())
+  name     String  
+  slug     String  
+  Blog      Blog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+}
+
 model Blog {
   id        String  @id @default(cuid())
   authorId  String?
-  slug      String @unique
+  categoryId  String?
+  slug      String 
   title     String 
   image     String?
   des       String?
   content   String
-  // tags      String[]
+  Tags      Tag[]
   Author      User?   @relation(fields: [authorId], references: [id])
-  // total_likes Int   @default(0) 
-  // total_comments Int   @default(0) 
-  // total_reads Int   @default(0) 
-  // total_parent_comments Int   @default(0) 
+  Categories      Category?   @relation(fields: [categoryId], references: [id])
+  total_likes Int   @default(0) 
+  total_comments Int   @default(0) 
+  total_reads Int   @default(0) 
+  total_parent_comments Int   @default(0) 
   draft Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  Blogs Blog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
 }

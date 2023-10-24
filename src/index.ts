@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { errorHandler, notFound } from "./middleware/error";
 import { blogsRoutes } from "./routes/blog";
 import { usersRoutes } from "./routes/user";
+import { categoriesRoutes } from "./routes/category";
 
 dotenv.config();
 
@@ -22,6 +23,9 @@ app.use("/api/blogs", blogsRoutes);
 
 // users routes
 app.use("/api/users", usersRoutes);
+
+// categories routes
+app.use("/api/category", categoriesRoutes);
 
 // error handler
 app.use(notFound);

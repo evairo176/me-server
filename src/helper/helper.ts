@@ -3,6 +3,7 @@ import sharp from "sharp";
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const multer = require("multer");
+import mkdirp from "mkdirp";
 
 export const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "20d" });

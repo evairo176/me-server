@@ -3,7 +3,35 @@ import expressAsyncHandler from "express-async-handler";
 import slug from "slug";
 import { prisma } from "../../lib/prisma-client";
 import { deleteFile, deleteImage, sharpUpload } from "../../helper/helper";
+import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 const fs = require("fs");
+
+//----------------------------------------------
+// create tag
+//----------------------------------------------
+
+async function insertTagsIfNotExist(tagArray: []) {
+  const createdTags = [];
+
+  for (const tagName of tagArray) {
+    try {
+      const tag = await prisma.tag.upsert({
+        where: { name: tagName },
+        create: {
+          name: tagName,
+        },
+        update: {},
+      });
+
+      createdTags.push(tag);
+    } catch (error) {
+      // Handle any errors, such as unique constraint violations (duplicate tag names)
+      console.error("Error inserting tag:", error);
+    }
+  }
+
+  return createdTags;
+}
 
 //----------------------------------------------
 // create blog
@@ -32,6 +60,9 @@ export const createController = expressAsyncHandler(
       localPath = await sharpUpload(req.file, req?.body?.title);
     }
 
+    console.log(req.body.tags);
+    const tags = JSON.parse(req.body.Tags);
+
     try {
       const blog = await prisma.blog.create({
         data: {
@@ -40,6 +71,13 @@ export const createController = expressAsyncHandler(
           slug: slugTitle,
           image: localPath,
           content: req.body.content,
+          draft: req.body.draft === "1" ? true : false,
+          Tags: {
+            connectOrCreate: tags.map((tag: string) => ({
+              where: { name: tag },
+              create: { name: tag },
+            })),
+          },
         },
       });
 
@@ -48,6 +86,12 @@ export const createController = expressAsyncHandler(
         blog: blog,
       });
     } catch (error) {
+      if (error instanceof PrismaClientValidationError) {
+        res.json(error);
+        console.error("Prisma Validation Error Message:", error.message);
+      } else {
+        console.error("Non-Prisma Validation Error:", error);
+      }
       res.json(error);
     }
   }

@@ -119,7 +119,15 @@ exports.detailUserController = (0, express_async_handler_1.default)((req, res) =
             id: id,
         },
         include: {
-            Blog: true,
+            Blog: {
+                include: {
+                    Categories: true,
+                    Tags: true,
+                },
+                orderBy: {
+                    createdAt: "desc",
+                },
+            },
         },
     });
     // console.log(user);
