@@ -29,9 +29,15 @@ const multerFilter = (req, file, callback) => {
     }
 };
 exports.photoUpload = multer({
-    storage: multerStorage,
-    fileFilter: multerFilter,
-    limits: { fileSize: 1000000000 },
+    storage: multer.diskStorage({}),
+    fileFilter: (req, file, cb) => {
+        let ext = path.extname(file.originalname);
+        if (ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png") {
+            cb(new Error("File type is not supported"), false);
+            return;
+        }
+        cb(null, true);
+    },
 });
 //image resizing
 const profilePhotoResize = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

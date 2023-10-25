@@ -4,6 +4,12 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const multer = require("multer");
 import mkdirp from "mkdirp";
+import {
+  supabaseDeleteFile,
+  supabaseGetPublicUrl,
+  supabaseUpdateFile,
+  supabaseUploadFile,
+} from "../../src/lib/supabase";
 
 export const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "20d" });
@@ -54,6 +60,38 @@ export const sharpUpload = async (file: any, title: string) => {
     .toFile(path.join(pathUploadFile + filename));
 
   return pathImage;
+};
+
+export const supabaseUpload = async (file: any) => {
+  //check if there no file to resize
+  console.log({ file });
+  if (!file) throw new Error(`Image file not found`);
+  // const filename = `${title}-${Date.now()}.webp`;
+
+  const uploadImg = await supabaseUploadFile(file, "blogs");
+  if (uploadImg.error) {
+    throw new Error(uploadImg.error.message);
+  }
+
+  const data = supabaseGetPublicUrl(uploadImg.filename, "blogs");
+
+  return data.publicUrl;
+};
+
+export const deleteImageSupabase = async (filename: string) => {
+  const filePath = filename.split("/").slice(-1)[0];
+  try {
+    const { data, error } = await supabaseDeleteFile(filePath, "blogs");
+
+    if (error) {
+      throw new Error("Error deleting image:");
+    } else {
+      console.log("Image deleted successfully:");
+      console.log({ data });
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
 // Function to delete an existing image file

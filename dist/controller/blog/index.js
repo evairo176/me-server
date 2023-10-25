@@ -48,7 +48,6 @@ function insertTagsIfNotExist(tagArray) {
 // create blog
 //----------------------------------------------
 exports.createController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { id } = req.user;
     const slugTitle = (0, slug_1.default)(req.body.title);
     const checkIfExist = yield prisma_client_1.prisma.blog.findFirst({
@@ -59,14 +58,17 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
     if (checkIfExist) {
         throw new Error(`Creating failed because ${slugTitle} content already exist`);
     }
-    // console.log(req.body.image);
     let localPath = "";
     if (req === null || req === void 0 ? void 0 : req.file) {
         // // 1. get the path to img
-        localPath = yield (0, helper_1.sharpUpload)(req.file, (_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.title);
+        const fileBuffer = fs.readFileSync(req.file.path);
+        console.log({ fileBuffer });
+        localPath = yield (0, helper_1.supabaseUpload)(fileBuffer);
     }
-    console.log(req.body.tags);
     const tags = JSON.parse(req.body.Tags);
+    if (localPath == "") {
+        throw new Error(`Image something wrong try new image`);
+    }
     try {
         const blog = yield prisma_client_1.prisma.blog.create({
             data: Object.assign(Object.assign({}, req.body), { authorId: id, slug: slugTitle, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
@@ -126,10 +128,10 @@ exports.editController = (0, express_async_handler_1.default)((req, res) => __aw
 // update blog
 //----------------------------------------------
 exports.updateController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b, _c, _d;
+    var _a, _b, _c;
     const { id } = req.params;
     const { authorId } = req.user;
-    const slugTitle = (0, slug_1.default)((_b = req === null || req === void 0 ? void 0 : req.body) === null || _b === void 0 ? void 0 : _b.title);
+    const slugTitle = (0, slug_1.default)((_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.title);
     const blog = yield prisma_client_1.prisma.blog.findFirst({
         where: {
             id: id,
@@ -150,7 +152,7 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
     let localPath = "";
     if (req === null || req === void 0 ? void 0 : req.file) {
         // // 1. get the path to img
-        localPath = yield (0, helper_1.sharpUpload)(req.file, ((_c = req === null || req === void 0 ? void 0 : req.body) === null || _c === void 0 ? void 0 : _c.title) ? (_d = req === null || req === void 0 ? void 0 : req.body) === null || _d === void 0 ? void 0 : _d.title : blog === null || blog === void 0 ? void 0 : blog.title);
+        localPath = yield (0, helper_1.sharpUpload)(req.file, ((_b = req === null || req === void 0 ? void 0 : req.body) === null || _b === void 0 ? void 0 : _b.title) ? (_c = req === null || req === void 0 ? void 0 : req.body) === null || _c === void 0 ? void 0 : _c.title : blog === null || blog === void 0 ? void 0 : blog.title);
         if (localPath != "") {
             (0, helper_1.deleteImage)(bannerOld);
         }
@@ -192,7 +194,7 @@ exports.deleteController = (0, express_async_handler_1.default)((req, res) => __
             },
         });
         if ((deleteBlog === null || deleteBlog === void 0 ? void 0 : deleteBlog.image) != "") {
-            (0, helper_1.deleteImage)((deleteBlog === null || deleteBlog === void 0 ? void 0 : deleteBlog.image) || "");
+            (0, helper_1.deleteImageSupabase)(deleteBlog === null || deleteBlog === void 0 ? void 0 : deleteBlog.image);
         }
         res.json({
             message: `Deleted blog successfully`,

@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteImage = exports.sharpUpload = exports.deleteFile = exports.generateToken = void 0;
+exports.deleteImage = exports.deleteImageSupabase = exports.supabaseUpload = exports.sharpUpload = exports.deleteFile = exports.generateToken = void 0;
 const path_1 = __importDefault(require("path"));
 const sharp_1 = __importDefault(require("sharp"));
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const multer = require("multer");
+const supabase_1 = require("../../src/lib/supabase");
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "20d" });
 };
@@ -69,6 +70,37 @@ const sharpUpload = (file, title) => __awaiter(void 0, void 0, void 0, function*
     return pathImage;
 });
 exports.sharpUpload = sharpUpload;
+const supabaseUpload = (file) => __awaiter(void 0, void 0, void 0, function* () {
+    //check if there no file to resize
+    console.log({ file });
+    if (!file)
+        throw new Error(`Image file not found`);
+    // const filename = `${title}-${Date.now()}.webp`;
+    const uploadImg = yield (0, supabase_1.supabaseUploadFile)(file, "blogs");
+    if (uploadImg.error) {
+        throw new Error(uploadImg.error.message);
+    }
+    const data = (0, supabase_1.supabaseGetPublicUrl)(uploadImg.filename, "blogs");
+    return data.publicUrl;
+});
+exports.supabaseUpload = supabaseUpload;
+const deleteImageSupabase = (filename) => __awaiter(void 0, void 0, void 0, function* () {
+    const filePath = filename.split("/").slice(-1)[0];
+    try {
+        const { data, error } = yield (0, supabase_1.supabaseDeleteFile)(filePath, "blogs");
+        if (error) {
+            throw new Error("Error deleting image:");
+        }
+        else {
+            console.log("Image deleted successfully:");
+            console.log({ data });
+        }
+    }
+    catch (error) {
+        throw new Error(error);
+    }
+});
+exports.deleteImageSupabase = deleteImageSupabase;
 // Function to delete an existing image file
 const deleteImage = (imagePath) => __awaiter(void 0, void 0, void 0, function* () {
     yield fs.unlink(imagePath, (err) => {

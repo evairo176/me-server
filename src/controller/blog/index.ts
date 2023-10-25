@@ -2,7 +2,13 @@ import { Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import slug from "slug";
 import { prisma } from "../../lib/prisma-client";
-import { deleteFile, deleteImage, sharpUpload } from "../../helper/helper";
+import {
+  deleteFile,
+  deleteImage,
+  deleteImageSupabase,
+  sharpUpload,
+  supabaseUpload,
+} from "../../helper/helper";
 import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 const fs = require("fs");
 
@@ -53,15 +59,19 @@ export const createController = expressAsyncHandler(
       );
     }
 
-    // console.log(req.body.image);
-    let localPath = "";
+    let localPath: string = "";
     if (req?.file) {
       // // 1. get the path to img
-      localPath = await sharpUpload(req.file, req?.body?.title);
+      const fileBuffer = fs.readFileSync(req.file.path);
+      console.log({ fileBuffer });
+      localPath = await supabaseUpload(fileBuffer);
     }
 
-    console.log(req.body.tags);
     const tags = JSON.parse(req.body.Tags);
+
+    if (localPath == "") {
+      throw new Error(`Image something wrong try new image`);
+    }
 
     try {
       const blog = await prisma.blog.create({
@@ -221,7 +231,7 @@ export const deleteController = expressAsyncHandler(async (req, res) => {
     });
 
     if (deleteBlog?.image != "") {
-      deleteImage(deleteBlog?.image || "");
+      deleteImageSupabase(deleteBlog?.image);
     }
 
     res.json({

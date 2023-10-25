@@ -5,7 +5,7 @@ import {
   editController,
   updateController,
 } from "../../controller/blog";
-import { photoUpload, postImgResize } from "../../middleware/uploads";
+import { photoUpload } from "../../middleware/uploads";
 import { validate } from "../../middleware/error";
 import { CreateBlogSchema } from "../../lib/form-schema";
 import { authMiddleware } from "../../middleware/auth";
