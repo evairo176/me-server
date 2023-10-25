@@ -68,7 +68,7 @@ export const createController = expressAsyncHandler(
     }
 
     const tags = JSON.parse(req.body.Tags);
-
+    //update
     if (localPath == "") {
       throw new Error(`Image something wrong try new image`);
     }

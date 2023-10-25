@@ -66,6 +66,7 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
         localPath = yield (0, helper_1.supabaseUpload)(fileBuffer);
     }
     const tags = JSON.parse(req.body.Tags);
+    //update
     if (localPath == "") {
         throw new Error(`Image something wrong try new image`);
     }
