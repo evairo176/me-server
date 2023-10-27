@@ -63,7 +63,6 @@ export const createController = expressAsyncHandler(
     if (req?.file) {
       // // 1. get the path to img
       const fileBuffer = fs.readFileSync(req.file.path);
-      console.log({ fileBuffer });
       localPath = await supabaseUpload(fileBuffer);
     }
 
@@ -118,6 +117,10 @@ export const editController = expressAsyncHandler(async (req, res) => {
     where: {
       id: id,
     },
+    include: {
+      Tags: true,
+      Categories: true,
+    },
   });
   if (!checkIfExist) throw new Error(`Blog not found`);
 
@@ -128,6 +131,7 @@ export const editController = expressAsyncHandler(async (req, res) => {
       },
       include: {
         Author: true,
+        Tags: true,
       },
     });
     res.json({
@@ -159,32 +163,34 @@ export const updateController = expressAsyncHandler(
       throw new Error(`Blog not found`);
     }
 
-    const checkSlug = await prisma.blog.findFirst({
-      where: {
-        slug: slugTitle,
-      },
-    });
+    // const checkSlug = await prisma.blog.findFirst({
+    //   where: {
+    //     slug: slugTitle,
+    //   },
+    // });
 
-    if (checkSlug) {
-      throw new Error(
-        `Creating failed because ${slugTitle} content already exist`
-      );
-    }
+    // if (checkSlug) {
+    //   throw new Error(
+    //     `Creating failed because ${slugTitle} content already exist`
+    //   );
+    // }
 
-    const bannerOld = blog?.image || "";
-    let localPath = "";
-
+    let localPath: string = "";
     if (req?.file) {
       // // 1. get the path to img
-      localPath = await sharpUpload(
-        req.file,
-        req?.body?.title ? req?.body?.title : blog?.title
-      );
+      const fileBuffer = fs.readFileSync(req.file.path);
+      localPath = await supabaseUpload(fileBuffer);
+
       if (localPath != "") {
-        deleteImage(bannerOld);
+        deleteImageSupabase(blog?.image);
       }
     }
-    const imageUrl = localPath !== "" ? localPath : bannerOld;
+
+    const tags = JSON.parse(req.body.Tags);
+    //update
+    if (localPath == "") {
+      localPath = blog?.image;
+    }
 
     try {
       const blogUpdate = await prisma.blog.update({
@@ -192,8 +198,15 @@ export const updateController = expressAsyncHandler(
           ...req.body,
           authorId: authorId,
           slug: slugTitle,
-          image: imageUrl,
+          image: localPath,
           content: req.body.content,
+          draft: req.body.draft === "1" ? true : false,
+          Tags: {
+            connectOrCreate: tags.map((tag: string) => ({
+              where: { name: tag },
+              create: { name: tag },
+            })),
+          },
         },
         where: {
           id: id,
@@ -242,3 +255,38 @@ export const deleteController = expressAsyncHandler(async (req, res) => {
     res.json(error);
   }
 });
+
+//----------------------------------------------
+// fetch all blog by user
+//----------------------------------------------
+
+export const fetchAllblogByUserController = expressAsyncHandler(
+  async (req, res) => {
+    const { id } = req.params;
+
+    const blog = await prisma.blog.findMany({
+      include: {
+        Tags: true,
+        Categories: true,
+        Author: {
+          where: {
+            id: id,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    if (!blog) throw new Error(`Blog not found`);
+
+    try {
+      res.json({
+        message: `Showed data detail blog successfully`,
+        blog: blog,
+      });
+    } catch (error) {
+      res.json(error);
+    }
+  }
+);

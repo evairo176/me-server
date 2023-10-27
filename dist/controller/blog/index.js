@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
+exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
@@ -62,7 +62,6 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
     if (req === null || req === void 0 ? void 0 : req.file) {
         // // 1. get the path to img
         const fileBuffer = fs.readFileSync(req.file.path);
-        console.log({ fileBuffer });
         localPath = yield (0, helper_1.supabaseUpload)(fileBuffer);
     }
     const tags = JSON.parse(req.body.Tags);
@@ -104,6 +103,10 @@ exports.editController = (0, express_async_handler_1.default)((req, res) => __aw
         where: {
             id: id,
         },
+        include: {
+            Tags: true,
+            Categories: true,
+        },
     });
     if (!checkIfExist)
         throw new Error(`Blog not found`);
@@ -114,6 +117,7 @@ exports.editController = (0, express_async_handler_1.default)((req, res) => __aw
             },
             include: {
                 Author: true,
+                Tags: true,
             },
         });
         res.json({
@@ -129,7 +133,7 @@ exports.editController = (0, express_async_handler_1.default)((req, res) => __aw
 // update blog
 //----------------------------------------------
 exports.updateController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
+    var _a;
     const { id } = req.params;
     const { authorId } = req.user;
     const slugTitle = (0, slug_1.default)((_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.title);
@@ -141,27 +145,38 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
     if (!blog) {
         throw new Error(`Blog not found`);
     }
-    const checkSlug = yield prisma_client_1.prisma.blog.findFirst({
-        where: {
-            slug: slugTitle,
-        },
-    });
-    if (checkSlug) {
-        throw new Error(`Creating failed because ${slugTitle} content already exist`);
-    }
-    const bannerOld = (blog === null || blog === void 0 ? void 0 : blog.image) || "";
+    // const checkSlug = await prisma.blog.findFirst({
+    //   where: {
+    //     slug: slugTitle,
+    //   },
+    // });
+    // if (checkSlug) {
+    //   throw new Error(
+    //     `Creating failed because ${slugTitle} content already exist`
+    //   );
+    // }
     let localPath = "";
     if (req === null || req === void 0 ? void 0 : req.file) {
         // // 1. get the path to img
-        localPath = yield (0, helper_1.sharpUpload)(req.file, ((_b = req === null || req === void 0 ? void 0 : req.body) === null || _b === void 0 ? void 0 : _b.title) ? (_c = req === null || req === void 0 ? void 0 : req.body) === null || _c === void 0 ? void 0 : _c.title : blog === null || blog === void 0 ? void 0 : blog.title);
+        const fileBuffer = fs.readFileSync(req.file.path);
+        localPath = yield (0, helper_1.supabaseUpload)(fileBuffer);
         if (localPath != "") {
-            (0, helper_1.deleteImage)(bannerOld);
+            (0, helper_1.deleteImageSupabase)(blog === null || blog === void 0 ? void 0 : blog.image);
         }
     }
-    const imageUrl = localPath !== "" ? localPath : bannerOld;
+    const tags = JSON.parse(req.body.Tags);
+    //update
+    if (localPath == "") {
+        localPath = blog === null || blog === void 0 ? void 0 : blog.image;
+    }
     try {
         const blogUpdate = yield prisma_client_1.prisma.blog.update({
-            data: Object.assign(Object.assign({}, req.body), { authorId: authorId, slug: slugTitle, image: imageUrl, content: req.body.content }),
+            data: Object.assign(Object.assign({}, req.body), { authorId: authorId, slug: slugTitle, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
+                    connectOrCreate: tags.map((tag) => ({
+                        where: { name: tag },
+                        create: { name: tag },
+                    })),
+                } }),
             where: {
                 id: id,
             },
@@ -200,6 +215,37 @@ exports.deleteController = (0, express_async_handler_1.default)((req, res) => __
         res.json({
             message: `Deleted blog successfully`,
             blog: deleteBlog,
+        });
+    }
+    catch (error) {
+        res.json(error);
+    }
+}));
+//----------------------------------------------
+// fetch all blog by user
+//----------------------------------------------
+exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const blog = yield prisma_client_1.prisma.blog.findMany({
+        include: {
+            Tags: true,
+            Categories: true,
+            Author: {
+                where: {
+                    id: id,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    if (!blog)
+        throw new Error(`Blog not found`);
+    try {
+        res.json({
+            message: `Showed data detail blog successfully`,
+            blog: blog,
         });
     }
     catch (error) {

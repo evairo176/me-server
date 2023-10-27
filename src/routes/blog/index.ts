@@ -3,11 +3,12 @@ import {
   createController,
   deleteController,
   editController,
+  fetchAllblogByUserController,
   updateController,
 } from "../../controller/blog";
 import { photoUpload } from "../../middleware/uploads";
 import { validate } from "../../middleware/error";
-import { CreateBlogSchema } from "../../lib/form-schema";
+import { CreateBlogSchema, UpdateBlogSchema } from "../../lib/form-schema";
 import { authMiddleware } from "../../middleware/auth";
 
 export const blogsRoutes = express.Router();
@@ -19,11 +20,15 @@ blogsRoutes.post(
   validate(CreateBlogSchema),
   createController
 );
-blogsRoutes.get("/:id", authMiddleware, editController);
+blogsRoutes.get("/:id", editController);
 blogsRoutes.put(
   "/:id",
   authMiddleware,
   photoUpload.single("image"),
+  validate(UpdateBlogSchema),
   updateController
 );
 blogsRoutes.delete("/:id", authMiddleware, deleteController);
+
+// fetch all blog by user id
+blogsRoutes.get("/user/:id", fetchAllblogByUserController);
