@@ -4,6 +4,7 @@ import {
   deleteController,
   editController,
   fetchAllblogByUserController,
+  fetchBlogBySlugController,
   updateController,
 } from "../../controller/blog";
 import { photoUpload } from "../../middleware/uploads";
@@ -32,3 +33,6 @@ blogsRoutes.delete("/:id", authMiddleware, deleteController);
 
 // fetch all blog by user id
 blogsRoutes.get("/user/:id", fetchAllblogByUserController);
+
+// fetch defail blog by slug
+blogsRoutes.get("/detail/:slug", fetchBlogBySlugController);

@@ -290,3 +290,42 @@ export const fetchAllblogByUserController = expressAsyncHandler(
     }
   }
 );
+
+//----------------------------------------------
+// fetch single blog by slug
+//----------------------------------------------
+
+export const fetchBlogBySlugController = expressAsyncHandler(
+  async (req, res) => {
+    const { slug } = req.params;
+
+    const checkIfExist = await prisma.blog.findFirst({
+      where: {
+        slug: slug,
+      },
+      include: {
+        Tags: true,
+        Categories: true,
+      },
+    });
+    if (!checkIfExist) throw new Error(`Blog not found`);
+
+    try {
+      const blog = await prisma.blog.findFirst({
+        where: {
+          slug: slug,
+        },
+        include: {
+          Author: true,
+          Tags: true,
+        },
+      });
+      res.json({
+        message: `Showed data detail blog successfully`,
+        blog: blog,
+      });
+    } catch (error) {
+      res.json(error);
+    }
+  }
+);

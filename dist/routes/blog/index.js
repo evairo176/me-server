@@ -17,4 +17,6 @@ exports.blogsRoutes.put("/:id", auth_1.authMiddleware, uploads_1.photoUpload.sin
 exports.blogsRoutes.delete("/:id", auth_1.authMiddleware, blog_1.deleteController);
 // fetch all blog by user id
 exports.blogsRoutes.get("/user/:id", blog_1.fetchAllblogByUserController);
+// fetch defail blog by slug
+exports.blogsRoutes.get("/detail/:slug", blog_1.fetchBlogBySlugController);
 //# sourceMappingURL=index.js.map
