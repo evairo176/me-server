@@ -277,6 +277,10 @@ export const fetchAllblogByUserController = expressAsyncHandler(
       orderBy: {
         createdAt: "desc",
       },
+      where: {
+        draft: true,
+      },
+      take: 3,
     });
     if (!blog) throw new Error(`Blog not found`);
 

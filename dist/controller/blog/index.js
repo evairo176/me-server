@@ -239,6 +239,10 @@ exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req
         orderBy: {
             createdAt: "desc",
         },
+        where: {
+            draft: true,
+        },
+        take: 3,
     });
     if (!blog)
         throw new Error(`Blog not found`);
