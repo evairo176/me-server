@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
+exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
@@ -261,27 +261,48 @@ exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req
 //----------------------------------------------
 exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { slug } = req.params;
-    const checkIfExist = yield prisma_client_1.prisma.blog.findFirst({
+    const blog = yield prisma_client_1.prisma.blog.findFirst({
         where: {
             slug: slug,
         },
         include: {
             Tags: true,
             Categories: true,
+            Author: true,
         },
     });
-    if (!checkIfExist)
+    if (!blog)
         throw new Error(`Blog not found`);
     try {
-        const blog = yield prisma_client_1.prisma.blog.findFirst({
-            where: {
-                slug: slug,
-            },
-            include: {
-                Author: true,
-                Tags: true,
-            },
+        res.json({
+            message: `Showed data detail blog successfully`,
+            blog: blog,
         });
+    }
+    catch (error) {
+        res.json(error);
+    }
+}));
+//----------------------------------------------
+// fetch all blog by user
+//----------------------------------------------
+exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const blog = yield prisma_client_1.prisma.blog.findMany({
+        include: {
+            Tags: true,
+            Categories: true,
+            Author: true,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+        where: {
+            draft: true,
+        },
+    });
+    if (!blog)
+        throw new Error(`Blog not found`);
+    try {
         res.json({
             message: `Showed data detail blog successfully`,
             blog: blog,

@@ -19,4 +19,6 @@ exports.blogsRoutes.delete("/:id", auth_1.authMiddleware, blog_1.deleteControlle
 exports.blogsRoutes.get("/user/:id", blog_1.fetchAllblogByUserController);
 // fetch defail blog by slug
 exports.blogsRoutes.get("/detail/:slug", blog_1.fetchBlogBySlugController);
+// fetch defail all blog
+exports.blogsRoutes.get("/", blog_1.fetchAllblogController);
 //# sourceMappingURL=index.js.map
