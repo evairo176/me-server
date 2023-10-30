@@ -327,7 +327,7 @@ export const fetchBlogBySlugController = expressAsyncHandler(
 );
 
 //----------------------------------------------
-// fetch all blog by user
+// fetch all blog
 //----------------------------------------------
 
 export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
