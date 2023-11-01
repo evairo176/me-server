@@ -20,11 +20,11 @@ const fs = require("fs");
 const multer = require("multer");
 const supabase_1 = require("../../src/lib/supabase");
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1m" });
+    return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
 };
 exports.generateToken = generateToken;
 const generateRefreshToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
+    return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "30d" });
 };
 exports.generateRefreshToken = generateRefreshToken;
 const deleteFile = (filePath) => {

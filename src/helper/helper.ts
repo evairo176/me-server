@@ -12,10 +12,10 @@ import {
 } from "../../src/lib/supabase";
 
 export const generateToken = (id: string) => {
-  return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1m" });
+  return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
 };
 export const generateRefreshToken = (id: string) => {
-  return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
+  return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "30d" });
 };
 
 export const deleteFile = (filePath: any) => {
