@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteImage = exports.deleteImageSupabase = exports.supabaseUpload = exports.sharpUpload = exports.deleteFile = exports.generateToken = void 0;
+exports.deleteImage = exports.deleteImageSupabase = exports.supabaseUpload = exports.sharpUpload = exports.deleteFile = exports.generateRefreshToken = exports.generateToken = void 0;
 const path_1 = __importDefault(require("path"));
 const sharp_1 = __importDefault(require("sharp"));
 const jwt = require("jsonwebtoken");
@@ -20,9 +20,13 @@ const fs = require("fs");
 const multer = require("multer");
 const supabase_1 = require("../../src/lib/supabase");
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "20d" });
+    return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1m" });
 };
 exports.generateToken = generateToken;
+const generateRefreshToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
+};
+exports.generateRefreshToken = generateRefreshToken;
 const deleteFile = (filePath) => {
     // Check if the file exists
     fs.stat(filePath, (err, stats) => {

@@ -45,6 +45,7 @@ async function insertTagsIfNotExist(tagArray: []) {
 export const createController = expressAsyncHandler(
   async (req: any, res: Response) => {
     const { id } = req.user;
+
     const slugTitle = slug(req.body.title);
 
     const checkIfExist = await prisma.blog.findFirst({
@@ -60,9 +61,11 @@ export const createController = expressAsyncHandler(
     }
 
     let localPath: string = "";
+
     if (req?.file) {
       // // 1. get the path to img
       const fileBuffer = fs.readFileSync(req.file.path);
+
       localPath = await supabaseUpload(fileBuffer);
     }
 
@@ -280,7 +283,6 @@ export const fetchAllblogByUserController = expressAsyncHandler(
       where: {
         draft: true,
       },
-      take: 3,
     });
     if (!blog) throw new Error(`Blog not found`);
 

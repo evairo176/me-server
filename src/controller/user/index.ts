@@ -1,9 +1,11 @@
 import expressAsyncHandler from "express-async-handler";
 import { prisma } from "../../lib/prisma-client";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
-import { generateToken } from "../../helper/helper";
+import { generateRefreshToken, generateToken } from "../../helper/helper";
+import { Request } from "express";
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 //----------------------------------------------
 // Register
@@ -94,6 +96,9 @@ export const userLoginController = expressAsyncHandler(async (req, res) => {
   if (!isPasswordMatched) throw new Error("Password not matched");
 
   if (userFound && isPasswordMatched) {
+    const token = generateToken(userFound?.id);
+    const refreshToken = generateRefreshToken(userFound?.id);
+
     res.json({
       message: "Login Successfully",
       user: {
@@ -103,13 +108,40 @@ export const userLoginController = expressAsyncHandler(async (req, res) => {
         username: userFound?.username,
         profile_img: userFound?.profile_img,
       },
-      token: generateToken(userFound?.id),
+      token: token,
+      refreshToken: refreshToken,
     });
   } else {
     res.status(401);
     throw new Error("Invalid login credentials");
   }
 });
+
+//----------------------------------------------
+// Refresh token
+//----------------------------------------------
+
+export const refreshTokenController = expressAsyncHandler(
+  async (req: any, res: any) => {
+    const prevToken = req.body.prevToken;
+    if (!prevToken) {
+      throw new Error("Access Denied. No Previous Token token provided.");
+    }
+
+    try {
+      const decoded = jwt.verify(prevToken, process.env.JWT_KEY);
+      const token = generateToken(decoded.id);
+
+      res.json({
+        id: decoded.id,
+        token: token,
+        expired: Date.now() / 1000 + (decoded.exp - decoded.iat),
+      });
+    } catch (error) {
+      throw new Error("Invalid refresh token.");
+    }
+  }
+);
 
 //----------------------------------------------
 // detail user

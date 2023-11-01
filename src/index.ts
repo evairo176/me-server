@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 
 import { errorHandler, notFound } from "./middleware/error";
 import { blogsRoutes } from "./routes/blog";
@@ -11,7 +12,7 @@ import { categoriesRoutes } from "./routes/category";
 dotenv.config();
 
 const app = express();
-
+app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
 app.use(morgan("tiny"));
