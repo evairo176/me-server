@@ -20,7 +20,14 @@ const library_1 = require("@prisma/client/runtime/library");
 // create blog
 //----------------------------------------------
 exports.createController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
+    const checkIfExist = yield prisma_client_1.prisma.role.findFirst({
+        where: {
+            name: req.body.name,
+        },
+    });
+    if (checkIfExist) {
+        throw new Error(`Sorry you role already exist`);
+    }
     try {
         const role = yield prisma_client_1.prisma.role.create({
             data: Object.assign({}, req.body),

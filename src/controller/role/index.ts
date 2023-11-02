@@ -9,7 +9,14 @@ import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 
 export const createController = expressAsyncHandler(
   async (req: Request, res: Response) => {
-    console.log(req.body);
+    const checkIfExist = await prisma.role.findFirst({
+      where: {
+        name: req.body.name,
+      },
+    });
+    if (checkIfExist) {
+      throw new Error(`Sorry you role already exist`);
+    }
     try {
       const role = await prisma.role.create({
         data: {
