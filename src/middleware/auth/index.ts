@@ -38,7 +38,9 @@ export const authMiddleware = expressAsyncHandler(
           next();
         }
       } catch (error) {
-        throw new Error("Authorization error");
+        return res.status(401).send({
+          message: "Authorization error",
+        });
       }
     } else {
       throw new Error("There is no token attached to the header");

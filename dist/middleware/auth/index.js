@@ -43,7 +43,9 @@ exports.authMiddleware = expressAsyncHandler((req, res, next) => __awaiter(void 
             }
         }
         catch (error) {
-            throw new Error("Authorization error");
+            return res.status(401).send({
+                message: "Authorization error",
+            });
         }
     }
     else {

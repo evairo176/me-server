@@ -12,6 +12,7 @@ const error_1 = require("./middleware/error");
 const blog_1 = require("./routes/blog");
 const user_1 = require("./routes/user");
 const category_1 = require("./routes/category");
+const role_1 = require("./routes/role");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
@@ -26,6 +27,8 @@ app.use("/api/blogs", blog_1.blogsRoutes);
 app.use("/api/users", user_1.usersRoutes);
 // categories routes
 app.use("/api/category", category_1.categoriesRoutes);
+// roles routes
+app.use("/api/role", role_1.rolesRoutes);
 // error handler
 app.use(error_1.notFound);
 app.use(error_1.errorHandler);

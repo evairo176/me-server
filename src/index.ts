@@ -8,6 +8,7 @@ import { errorHandler, notFound } from "./middleware/error";
 import { blogsRoutes } from "./routes/blog";
 import { usersRoutes } from "./routes/user";
 import { categoriesRoutes } from "./routes/category";
+import { rolesRoutes } from "./routes/role";
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ app.use("/api/users", usersRoutes);
 
 // categories routes
 app.use("/api/category", categoriesRoutes);
+
+// roles routes
+app.use("/api/role", rolesRoutes);
 
 // error handler
 app.use(notFound);
