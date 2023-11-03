@@ -14,7 +14,7 @@ import { CreateBlogSchema, UpdateBlogSchema } from "../../lib/form-schema";
 import { authMiddleware } from "../../middleware/auth";
 
 export const blogsRoutes = express.Router();
-
+// create blog
 blogsRoutes.post(
   "/",
   authMiddleware,
@@ -22,7 +22,11 @@ blogsRoutes.post(
   validate(CreateBlogSchema),
   createController
 );
+
+// get detail blog
 blogsRoutes.get("/:id", editController);
+
+// update blog
 blogsRoutes.put(
   "/:id",
   authMiddleware,
@@ -30,6 +34,8 @@ blogsRoutes.put(
   validate(UpdateBlogSchema),
   updateController
 );
+
+// delete blog
 blogsRoutes.delete("/:id", authMiddleware, deleteController);
 
 // fetch all blog by user id
