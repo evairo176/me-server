@@ -17,6 +17,7 @@ export const createController = expressAsyncHandler(
     if (checkIfExist) {
       throw new Error(`Sorry you role already exist`);
     }
+
     try {
       const role = await prisma.role.create({
         data: {
@@ -41,7 +42,65 @@ export const createController = expressAsyncHandler(
 );
 
 //----------------------------------------------
-// fetch all blog
+// get detail role
+//----------------------------------------------
+
+export const getDetailRoleController = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const checkIfExist = await prisma.role.findFirst({
+    where: {
+      id: id,
+    },
+  });
+
+  if (!checkIfExist) {
+    throw new Error("Sorry your data not found");
+  }
+  try {
+    res.json({
+      message: "Get detail data successfully",
+      role: checkIfExist,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+//----------------------------------------------
+// update role
+//----------------------------------------------
+
+export const updateRoleController = expressAsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const checkIfExist = await prisma.role.findFirst({
+    where: {
+      id: id,
+    },
+  });
+
+  if (!checkIfExist) throw new Error("Sorry your data not found");
+
+  try {
+    const roleUpdate = await prisma.role.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...req.body,
+      },
+    });
+
+    res.json({
+      message: "Updated role data successfully",
+      role: roleUpdate,
+    });
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+//----------------------------------------------
+// fetch all role
 //----------------------------------------------
 
 export const fetchAllRoleController = expressAsyncHandler(async (req, res) => {

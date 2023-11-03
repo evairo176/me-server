@@ -9,6 +9,8 @@ const auth_1 = require("../../../src/middleware/auth");
 const role_1 = require("../../../src/controller/role");
 exports.rolesRoutes = express_1.default.Router();
 exports.rolesRoutes.get("/", auth_1.authMiddleware, role_1.fetchAllRoleController);
+exports.rolesRoutes.get("/:id", auth_1.authMiddleware, role_1.getDetailRoleController);
 exports.rolesRoutes.post("/", auth_1.authMiddleware, role_1.createController);
+exports.rolesRoutes.put("/:id", auth_1.authMiddleware, role_1.updateRoleController);
 exports.rolesRoutes.post("/delete/multiple", auth_1.authMiddleware, role_1.deleteController);
 //# sourceMappingURL=index.js.map
