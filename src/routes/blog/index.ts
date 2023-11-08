@@ -36,7 +36,7 @@ blogsRoutes.put(
 );
 
 // delete blog
-blogsRoutes.delete("/:id", authMiddleware, deleteController);
+blogsRoutes.post("/delete/multiple", authMiddleware, deleteController);
 
 // fetch all blog by user id
 blogsRoutes.get("/user/:id", fetchAllblogByUserController);

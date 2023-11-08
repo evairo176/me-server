@@ -20,7 +20,17 @@ const prisma_client_1 = require("../../lib/prisma-client");
 //----------------------------------------------
 exports.findAllController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const category = yield prisma_client_1.prisma.category.findMany({});
+        let category = [];
+        if (req.query.lang !== "") {
+            category = yield prisma_client_1.prisma.category.findMany({
+                where: {
+                    lang: req.query.lang,
+                },
+            });
+        }
+        else {
+            category = yield prisma_client_1.prisma.category.findMany({});
+        }
         res.json({
             message: "Get detail category successfully",
             category: category,

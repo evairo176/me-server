@@ -20,36 +20,11 @@ const helper_1 = require("../../helper/helper");
 const library_1 = require("@prisma/client/runtime/library");
 const fs = require("fs");
 //----------------------------------------------
-// create tag
-//----------------------------------------------
-function insertTagsIfNotExist(tagArray) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const createdTags = [];
-        for (const tagName of tagArray) {
-            try {
-                const tag = yield prisma_client_1.prisma.tag.upsert({
-                    where: { name: tagName },
-                    create: {
-                        name: tagName,
-                    },
-                    update: {},
-                });
-                createdTags.push(tag);
-            }
-            catch (error) {
-                // Handle any errors, such as unique constraint violations (duplicate tag names)
-                console.error("Error inserting tag:", error);
-            }
-        }
-        return createdTags;
-    });
-}
-//----------------------------------------------
 // create blog
 //----------------------------------------------
 exports.createController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
-    const slugTitle = (0, slug_1.default)(req.body.title);
+    const slugTitle = (0, slug_1.default)(req.body.slug);
     const checkIfExist = yield prisma_client_1.prisma.blog.findFirst({
         where: {
             slug: slugTitle,
@@ -71,10 +46,10 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
     }
     try {
         const blog = yield prisma_client_1.prisma.blog.create({
-            data: Object.assign(Object.assign({}, req.body), { authorId: id, slug: slugTitle, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
+            data: Object.assign(Object.assign({}, req.body), { authorId: id, lang: req.body.lang, slug: slugTitle, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
                     connectOrCreate: tags.map((tag) => ({
-                        where: { name: tag },
-                        create: { name: tag },
+                        where: { name: tag, lang: req.body.lang },
+                        create: { name: tag, lang: req.body.lang },
                     })),
                 } }),
         });
@@ -133,10 +108,9 @@ exports.editController = (0, express_async_handler_1.default)((req, res) => __aw
 // update blog
 //----------------------------------------------
 exports.updateController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { id } = req.params;
     const { authorId } = req.user;
-    const slugTitle = (0, slug_1.default)((_a = req === null || req === void 0 ? void 0 : req.body) === null || _a === void 0 ? void 0 : _a.title);
+    const slugTitle = (0, slug_1.default)(req.body.slug);
     const blog = yield prisma_client_1.prisma.blog.findFirst({
         where: {
             id: id,
@@ -194,55 +168,116 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
 // delete blog
 //----------------------------------------------
 exports.deleteController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
+    const ids = req.body.idArray;
     // check validation
-    const checkIfExist = yield prisma_client_1.prisma.blog.findFirst({
+    const checkIfExist = yield prisma_client_1.prisma.blog.findMany({
         where: {
-            id: id,
+            id: {
+                in: ids,
+            },
         },
     });
-    if (!checkIfExist)
-        throw new Error(`Blog not found`);
+    if (checkIfExist.length < 1)
+        throw new Error(`Role not found`);
+    checkIfExist.forEach((element) => {
+        if (element.image != "") {
+            (0, helper_1.deleteImageSupabase)(element.image);
+        }
+    });
     try {
-        const deleteBlog = yield prisma_client_1.prisma.blog.delete({
+        const deleteBlog = yield prisma_client_1.prisma.blog.deleteMany({
             where: {
-                id: id,
+                id: {
+                    in: ids,
+                },
             },
         });
-        if ((deleteBlog === null || deleteBlog === void 0 ? void 0 : deleteBlog.image) != "") {
-            (0, helper_1.deleteImageSupabase)(deleteBlog === null || deleteBlog === void 0 ? void 0 : deleteBlog.image);
+        if (deleteBlog.count === 0) {
+            res.status(400).json({
+                message: `data not found`,
+                role: deleteBlog,
+            });
         }
-        res.json({
-            message: `Deleted blog successfully`,
-            blog: deleteBlog,
-        });
+        else {
+            res.json({
+                message: `Deleted Role successfully`,
+                blog: checkIfExist,
+            });
+        }
     }
     catch (error) {
         res.json(error);
     }
+    // const { id } = req.params;
+    // // check validation
+    // const checkIfExist = await prisma.blog.findFirst({
+    //   where: {
+    //     id: id,
+    //   },
+    // });
+    // if (!checkIfExist) throw new Error(`Blog not found`);
+    // try {
+    //   const deleteBlog = await prisma.blog.delete({
+    //     where: {
+    //       id: id,
+    //     },
+    //   });
+    //   if (deleteBlog?.image != "") {
+    //     deleteImageSupabase(deleteBlog?.image);
+    //   }
+    //   res.json({
+    //     message: `Deleted blog successfully`,
+    //     blog: deleteBlog,
+    //   });
+    // } catch (error) {
+    //   res.json(error);
+    // }
 }));
 //----------------------------------------------
 // fetch all blog by user
 //----------------------------------------------
 exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const blog = yield prisma_client_1.prisma.blog.findMany({
-        include: {
-            Tags: true,
-            Categories: true,
-            Author: {
-                where: {
-                    id: id,
+    let blog = [];
+    if (req.query.lang !== "") {
+        blog = yield prisma_client_1.prisma.blog.findMany({
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: {
+                    where: {
+                        id: id,
+                    },
                 },
             },
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-        where: {
-            draft: true,
-        },
-    });
+            orderBy: {
+                createdAt: "desc",
+            },
+            where: {
+                draft: true,
+                lang: req.query.lang,
+            },
+        });
+    }
+    else {
+        blog = yield prisma_client_1.prisma.blog.findMany({
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: {
+                    where: {
+                        id: id,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            where: {
+                draft: true,
+            },
+        });
+    }
     if (!blog)
         throw new Error(`Blog not found`);
     try {
@@ -260,16 +295,32 @@ exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req
 //----------------------------------------------
 exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { slug } = req.params;
-    const blog = yield prisma_client_1.prisma.blog.findFirst({
-        where: {
-            slug: slug,
-        },
-        include: {
-            Tags: true,
-            Categories: true,
-            Author: true,
-        },
-    });
+    let blog = {};
+    if (req.query.lang !== "") {
+        blog = yield prisma_client_1.prisma.blog.findFirst({
+            where: {
+                slug: slug,
+                lang: req.query.lang,
+            },
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: true,
+            },
+        });
+    }
+    else {
+        blog = yield prisma_client_1.prisma.blog.findFirst({
+            where: {
+                slug: slug,
+            },
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: true,
+            },
+        });
+    }
     if (!blog)
         throw new Error(`Blog not found`);
     try {
