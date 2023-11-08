@@ -381,19 +381,37 @@ export const fetchBlogBySlugController = expressAsyncHandler(
 //----------------------------------------------
 
 export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
-  const blog = await prisma.blog.findMany({
-    include: {
-      Tags: true,
-      Categories: true,
-      Author: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    where: {
-      draft: true,
-    },
-  });
+  let blog: any[] = [];
+  if (req.query.lang !== "") {
+    blog = await prisma.blog.findMany({
+      include: {
+        Tags: true,
+        Categories: true,
+        Author: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        draft: true,
+        lang: req.query.lang as string,
+      },
+    });
+  } else {
+    blog = await prisma.blog.findMany({
+      include: {
+        Tags: true,
+        Categories: true,
+        Author: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        draft: true,
+      },
+    });
+  }
   if (!blog) throw new Error(`Blog not found`);
 
   try {

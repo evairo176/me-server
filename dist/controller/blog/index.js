@@ -337,19 +337,38 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
 // fetch all blog
 //----------------------------------------------
 exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield prisma_client_1.prisma.blog.findMany({
-        include: {
-            Tags: true,
-            Categories: true,
-            Author: true,
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-        where: {
-            draft: true,
-        },
-    });
+    let blog = [];
+    if (req.query.lang !== "") {
+        blog = yield prisma_client_1.prisma.blog.findMany({
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            where: {
+                draft: true,
+                lang: req.query.lang,
+            },
+        });
+    }
+    else {
+        blog = yield prisma_client_1.prisma.blog.findMany({
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            where: {
+                draft: true,
+            },
+        });
+    }
     if (!blog)
         throw new Error(`Blog not found`);
     try {
