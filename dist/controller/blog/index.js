@@ -25,14 +25,16 @@ const fs = require("fs");
 exports.createController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     const slugTitle = (0, slug_1.default)(req.body.slug);
-    const checkIfExist = yield prisma_client_1.prisma.blog.findFirst({
-        where: {
-            slug: slugTitle,
-        },
-    });
-    if (checkIfExist) {
-        throw new Error(`Creating failed because ${slugTitle} content already exist`);
-    }
+    // const checkIfExist = await prisma.blog.findFirst({
+    //   where: {
+    //     slug: slugTitle,
+    //   },
+    // });
+    // if (checkIfExist) {
+    //   throw new Error(
+    //     `Creating failed because ${slugTitle} content already exist`
+    //   );
+    // }
     let localPath = "";
     if (req === null || req === void 0 ? void 0 : req.file) {
         // // 1. get the path to img
@@ -48,7 +50,7 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
         const blog = yield prisma_client_1.prisma.blog.create({
             data: Object.assign(Object.assign({}, req.body), { authorId: id, lang: req.body.lang, slug: slugTitle, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
                     connectOrCreate: tags.map((tag) => ({
-                        where: { name: tag, lang: req.body.lang },
+                        where: { unique_name_lang: { name: tag, lang: req.body.lang } },
                         create: { name: tag, lang: req.body.lang },
                     })),
                 } }),
@@ -115,6 +117,9 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
         where: {
             id: id,
         },
+        include: {
+            Tags: true,
+        },
     });
     if (!blog) {
         throw new Error(`Blog not found`);
@@ -129,6 +134,7 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
     //     `Creating failed because ${slugTitle} content already exist`
     //   );
     // }
+    // console.log(req.body)
     let localPath = "";
     if (req === null || req === void 0 ? void 0 : req.file) {
         // // 1. get the path to img
@@ -145,10 +151,11 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
     }
     try {
         const blogUpdate = yield prisma_client_1.prisma.blog.update({
-            data: Object.assign(Object.assign({}, req.body), { authorId: authorId, slug: slugTitle, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
+            data: Object.assign(Object.assign({}, req.body), { authorId: authorId, slug: slugTitle, lang: req.body.lang, image: localPath, content: req.body.content, draft: req.body.draft === "1" ? true : false, Tags: {
+                    disconnect: blog.Tags,
                     connectOrCreate: tags.map((tag) => ({
-                        where: { name: tag },
-                        create: { name: tag },
+                        where: { unique_name_lang: { name: tag, lang: req.body.lang } },
+                        create: { name: tag, lang: req.body.lang },
                     })),
                 } }),
             where: {
@@ -161,6 +168,13 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
         });
     }
     catch (error) {
+        if (error instanceof library_1.PrismaClientValidationError) {
+            res.json(error);
+            console.error("Prisma Validation Error Message:", error.message);
+        }
+        else {
+            console.error("Non-Prisma Validation Error:", error);
+        }
         res.json(error);
     }
 }));

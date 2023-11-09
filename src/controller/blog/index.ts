@@ -15,17 +15,17 @@ export const createController = expressAsyncHandler(
 
     const slugTitle = slug(req.body.slug);
 
-    const checkIfExist = await prisma.blog.findFirst({
-      where: {
-        slug: slugTitle,
-      },
-    });
+    // const checkIfExist = await prisma.blog.findFirst({
+    //   where: {
+    //     slug: slugTitle,
+    //   },
+    // });
 
-    if (checkIfExist) {
-      throw new Error(
-        `Creating failed because ${slugTitle} content already exist`
-      );
-    }
+    // if (checkIfExist) {
+    //   throw new Error(
+    //     `Creating failed because ${slugTitle} content already exist`
+    //   );
+    // }
 
     let localPath: string = "";
 
@@ -54,7 +54,7 @@ export const createController = expressAsyncHandler(
           draft: req.body.draft === "1" ? true : false,
           Tags: {
             connectOrCreate: tags.map((tag: string) => ({
-              where: { name: tag, lang: req.body.lang },
+              where: { unique_name_lang: { name: tag, lang: req.body.lang } },
               create: { name: tag, lang: req.body.lang },
             })),
           },
@@ -128,6 +128,9 @@ export const updateController = expressAsyncHandler(
       where: {
         id: id,
       },
+      include: {
+        Tags: true,
+      },
     });
 
     if (!blog) {
@@ -145,6 +148,8 @@ export const updateController = expressAsyncHandler(
     //     `Creating failed because ${slugTitle} content already exist`
     //   );
     // }
+
+    // console.log(req.body)
 
     let localPath: string = "";
     if (req?.file) {
@@ -169,13 +174,15 @@ export const updateController = expressAsyncHandler(
           ...req.body,
           authorId: authorId,
           slug: slugTitle,
+          lang: req.body.lang,
           image: localPath,
           content: req.body.content,
           draft: req.body.draft === "1" ? true : false,
           Tags: {
+            disconnect: blog.Tags, // detach existing tagsc
             connectOrCreate: tags.map((tag: string) => ({
-              where: { name: tag },
-              create: { name: tag },
+              where: { unique_name_lang: { name: tag, lang: req.body.lang } },
+              create: { name: tag, lang: req.body.lang },
             })),
           },
         },
@@ -188,6 +195,12 @@ export const updateController = expressAsyncHandler(
         blog: blogUpdate,
       });
     } catch (error) {
+      if (error instanceof PrismaClientValidationError) {
+        res.json(error);
+        console.error("Prisma Validation Error Message:", error.message);
+      } else {
+        console.error("Non-Prisma Validation Error:", error);
+      }
       res.json(error);
     }
   }

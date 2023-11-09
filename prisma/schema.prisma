@@ -82,10 +82,12 @@ model Blog {
 
 model Tag {
   id       String  @id @default(cuid())
-  name     String  @unique
+  name     String 
   lang      String?  
   Blogs     Blog[]
   Language      Language?   @relation(fields: [lang], references: [code])
+  // Composite unique constraint on name and language
+  @@unique([name, lang], name: "unique_name_lang")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
