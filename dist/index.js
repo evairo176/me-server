@@ -13,10 +13,14 @@ const blog_1 = require("./routes/blog");
 const user_1 = require("./routes/user");
 const category_1 = require("./routes/category");
 const role_1 = require("./routes/role");
+const language_1 = require("./routes/language");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: process.env.FRONTEND_ORIGIN_URL,
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+}));
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)("tiny"));
 // show image
@@ -29,6 +33,8 @@ app.use("/api/users", user_1.usersRoutes);
 app.use("/api/category", category_1.categoriesRoutes);
 // roles routes
 app.use("/api/role", role_1.rolesRoutes);
+// languages routes
+app.use("/api/language", language_1.languagesRoutes);
 // error handler
 app.use(error_1.notFound);
 app.use(error_1.errorHandler);

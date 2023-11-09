@@ -9,12 +9,18 @@ import { blogsRoutes } from "./routes/blog";
 import { usersRoutes } from "./routes/user";
 import { categoriesRoutes } from "./routes/category";
 import { rolesRoutes } from "./routes/role";
+import { languagesRoutes } from "./routes/language";
 
 dotenv.config();
 
 const app = express();
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_ORIGIN_URL,
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  })
+);
 app.use(express.json());
 app.use(morgan("tiny"));
 // show image
@@ -31,6 +37,9 @@ app.use("/api/category", categoriesRoutes);
 
 // roles routes
 app.use("/api/role", rolesRoutes);
+
+// languages routes
+app.use("/api/language", languagesRoutes);
 
 // error handler
 app.use(notFound);
