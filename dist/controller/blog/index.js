@@ -62,13 +62,13 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
     }
     catch (error) {
         if (error instanceof library_1.PrismaClientValidationError) {
-            res.json(error);
+            res.status(500).json(error);
             console.error("Prisma Validation Error Message:", error.message);
         }
         else {
             console.error("Non-Prisma Validation Error:", error);
         }
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -103,7 +103,7 @@ exports.editController = (0, express_async_handler_1.default)((req, res) => __aw
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -169,13 +169,13 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
     }
     catch (error) {
         if (error instanceof library_1.PrismaClientValidationError) {
-            res.json(error);
+            res.statusCode.json(error);
             console.error("Prisma Validation Error Message:", error.message);
         }
         else {
             console.error("Non-Prisma Validation Error:", error);
         }
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -220,7 +220,7 @@ exports.deleteController = (0, express_async_handler_1.default)((req, res) => __
         }
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
     // const { id } = req.params;
     // // check validation
@@ -244,7 +244,7 @@ exports.deleteController = (0, express_async_handler_1.default)((req, res) => __
     //     blog: deleteBlog,
     //   });
     // } catch (error) {
-    //   res.json(error);
+    //   res.status(500).json(error);
     // }
 }));
 //----------------------------------------------
@@ -301,7 +301,7 @@ exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -344,7 +344,7 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -392,7 +392,7 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -457,7 +457,7 @@ exports.fetchAllblogByCategorySlugController = (0, express_async_handler_1.defau
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //# sourceMappingURL=index.js.map

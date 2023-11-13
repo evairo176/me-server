@@ -67,12 +67,12 @@ export const createController = expressAsyncHandler(
       });
     } catch (error) {
       if (error instanceof PrismaClientValidationError) {
-        res.json(error);
+        res.status(500).json(error);
         console.error("Prisma Validation Error Message:", error.message);
       } else {
         console.error("Non-Prisma Validation Error:", error);
       }
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );
@@ -110,7 +110,7 @@ export const editController = expressAsyncHandler(async (req, res) => {
       blog: blog,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -196,12 +196,12 @@ export const updateController = expressAsyncHandler(
       });
     } catch (error) {
       if (error instanceof PrismaClientValidationError) {
-        res.json(error);
+        res.statusCode.json(error);
         console.error("Prisma Validation Error Message:", error.message);
       } else {
         console.error("Non-Prisma Validation Error:", error);
       }
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );
@@ -250,7 +250,7 @@ export const deleteController = expressAsyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 
   // const { id } = req.params;
@@ -278,7 +278,7 @@ export const deleteController = expressAsyncHandler(async (req, res) => {
   //     blog: deleteBlog,
   //   });
   // } catch (error) {
-  //   res.json(error);
+  //   res.status(500).json(error);
   // }
 });
 
@@ -338,7 +338,7 @@ export const fetchAllblogByUserController = expressAsyncHandler(
         blog: blog,
       });
     } catch (error) {
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );
@@ -384,7 +384,7 @@ export const fetchBlogBySlugController = expressAsyncHandler(
         blog: blog,
       });
     } catch (error) {
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );
@@ -433,7 +433,7 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
       blog: blog,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -501,7 +501,7 @@ export const fetchAllblogByCategorySlugController = expressAsyncHandler(
         blog: blog,
       });
     } catch (error) {
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );
