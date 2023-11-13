@@ -21,6 +21,8 @@ exports.blogsRoutes.put("/:id", auth_1.authMiddleware, uploads_1.photoUpload.sin
 exports.blogsRoutes.post("/delete/multiple", auth_1.authMiddleware, blog_1.deleteController);
 // fetch all blog by user id
 exports.blogsRoutes.get("/user/:id", blog_1.fetchAllblogByUserController);
+// fetch all blog by category slug
+exports.blogsRoutes.get("/category/:categorySlug", blog_1.fetchAllblogByCategorySlugController);
 // fetch defail blog by slug
 exports.blogsRoutes.get("/detail/:slug", blog_1.fetchBlogBySlugController);
 // fetch defail all blog

@@ -436,3 +436,73 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
     res.json(error);
   }
 });
+
+//----------------------------------------------
+// fetch all blog by category slug
+//----------------------------------------------
+
+export const fetchAllblogByCategorySlugController = expressAsyncHandler(
+  async (req, res) => {
+    const { categorySlug } = req.params;
+    console.log(categorySlug);
+
+    let blog: any = {};
+    if (req.query.lang !== "") {
+      blog = await prisma.category.findFirst({
+        include: {
+          Blog: {
+            where: {
+              lang: req.query.lang as string,
+              draft: true,
+            },
+            include: {
+              Author: true,
+              Tags: true,
+              Categories: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
+        where: {
+          slug: categorySlug,
+          lang: req.query.lang as string,
+        },
+      });
+    } else {
+      blog = await prisma.category.findFirst({
+        include: {
+          Blog: {
+            where: {
+              draft: true,
+            },
+            include: {
+              Author: true,
+              Tags: true,
+              Categories: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
+        where: {
+          slug: categorySlug,
+          lang: req.query.lang as string,
+        },
+      });
+    }
+
+    if (!blog) throw new Error(`Blog not found`);
+
+    try {
+      res.json({
+        message: `Showed data detail blog successfully`,
+        blog: blog,
+      });
+    } catch (error) {
+      res.json(error);
+    }
+  }
+);

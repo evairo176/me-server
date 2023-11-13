@@ -3,6 +3,7 @@ import {
   createController,
   deleteController,
   editController,
+  fetchAllblogByCategorySlugController,
   fetchAllblogByUserController,
   fetchAllblogController,
   fetchBlogBySlugController,
@@ -40,6 +41,12 @@ blogsRoutes.post("/delete/multiple", authMiddleware, deleteController);
 
 // fetch all blog by user id
 blogsRoutes.get("/user/:id", fetchAllblogByUserController);
+
+// fetch all blog by category slug
+blogsRoutes.get(
+  "/category/:categorySlug",
+  fetchAllblogByCategorySlugController
+);
 
 // fetch defail blog by slug
 blogsRoutes.get("/detail/:slug", fetchBlogBySlugController);
