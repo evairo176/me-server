@@ -400,7 +400,6 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
 //----------------------------------------------
 exports.fetchAllblogByCategorySlugController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { categorySlug } = req.params;
-    console.log(categorySlug);
     let blog = {};
     if (req.query.lang !== "") {
         blog = yield prisma_client_1.prisma.category.findFirst({

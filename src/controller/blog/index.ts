@@ -444,7 +444,6 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
 export const fetchAllblogByCategorySlugController = expressAsyncHandler(
   async (req, res) => {
     const { categorySlug } = req.params;
-    console.log(categorySlug);
 
     let blog: any = {};
     if (req.query.lang !== "") {

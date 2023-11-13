@@ -12,11 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findAllController = void 0;
+exports.fetchCategoryBySlugController = exports.findAllController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const prisma_client_1 = require("../../lib/prisma-client");
 //----------------------------------------------
-// detail user
+// detail category
 //----------------------------------------------
 exports.findAllController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -33,6 +33,39 @@ exports.findAllController = (0, express_async_handler_1.default)((req, res) => _
         }
         res.json({
             message: "Get detail category successfully",
+            category: category,
+        });
+    }
+    catch (error) {
+        res.json(error);
+    }
+}));
+//----------------------------------------------
+// fetch category by slug
+//----------------------------------------------
+exports.fetchCategoryBySlugController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { categorySlug } = req.params;
+    let category = {};
+    if (req.query.lang !== "") {
+        category = yield prisma_client_1.prisma.category.findFirst({
+            where: {
+                slug: categorySlug,
+                lang: req.query.lang,
+            },
+        });
+    }
+    else {
+        category = yield prisma_client_1.prisma.category.findFirst({
+            where: {
+                slug: categorySlug,
+            },
+        });
+    }
+    if (!category)
+        throw new Error(`Blog not found`);
+    try {
+        res.json({
+            message: `Showed data detail blog successfully`,
             category: category,
         });
     }
