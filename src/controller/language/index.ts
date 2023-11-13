@@ -23,7 +23,7 @@ export const fetchAllLanguageController = expressAsyncHandler(
         language: languages,
       });
     } catch (error) {
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );

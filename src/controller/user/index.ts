@@ -73,7 +73,7 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
       user: user,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -178,6 +178,6 @@ export const detailUserController = expressAsyncHandler(async (req, res) => {
       user: user,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });

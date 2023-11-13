@@ -31,12 +31,12 @@ export const createController = expressAsyncHandler(
       });
     } catch (error) {
       if (error instanceof PrismaClientValidationError) {
-        res.json(error);
+        res.status(500).json(error);
         console.error("Prisma Validation Error Message:", error.message);
       } else {
         console.error("Non-Prisma Validation Error:", error);
       }
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );
@@ -62,7 +62,7 @@ export const getDetailRoleController = expressAsyncHandler(async (req, res) => {
       role: checkIfExist,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -95,7 +95,7 @@ export const updateRoleController = expressAsyncHandler(async (req, res) => {
       role: roleUpdate,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -121,7 +121,7 @@ export const fetchAllRoleController = expressAsyncHandler(async (req, res) => {
       role: role,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -163,6 +163,6 @@ export const deleteController = expressAsyncHandler(async (req, res) => {
       });
     }
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });

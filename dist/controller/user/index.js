@@ -72,7 +72,7 @@ exports.userRegisterController = (0, express_async_handler_1.default)((req, res)
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -165,7 +165,7 @@ exports.detailUserController = (0, express_async_handler_1.default)((req, res) =
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //# sourceMappingURL=index.js.map

@@ -23,7 +23,7 @@ export const findAllController = expressAsyncHandler(async (req, res) => {
       category: category,
     });
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 
@@ -59,7 +59,7 @@ export const fetchCategoryBySlugController = expressAsyncHandler(
         category: category,
       });
     } catch (error) {
-      res.json(error);
+      res.status(500).json(error);
     }
   }
 );

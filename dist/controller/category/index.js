@@ -37,7 +37,7 @@ exports.findAllController = (0, express_async_handler_1.default)((req, res) => _
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //----------------------------------------------
@@ -70,7 +70,7 @@ exports.fetchCategoryBySlugController = (0, express_async_handler_1.default)((re
         });
     }
     catch (error) {
-        res.json(error);
+        res.status(500).json(error);
     }
 }));
 //# sourceMappingURL=index.js.map
