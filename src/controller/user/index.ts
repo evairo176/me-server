@@ -93,7 +93,7 @@ export const userRegisterProviderController = expressAsyncHandler(
     // add three random digits
     const username = generateFromEmail(req?.body?.email, 5);
     // console.log(password);
-    console.log(req?.body);
+    // console.log(req?.body);
 
     try {
       const user = await prisma.user.create({

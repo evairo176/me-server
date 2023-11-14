@@ -90,7 +90,7 @@ exports.userRegisterProviderController = (0, express_async_handler_1.default)((r
     // add three random digits
     const username = (0, unique_username_generator_1.generateFromEmail)((_e = req === null || req === void 0 ? void 0 : req.body) === null || _e === void 0 ? void 0 : _e.email, 5);
     // console.log(password);
-    console.log(req === null || req === void 0 ? void 0 : req.body);
+    // console.log(req?.body);
     try {
         const user = yield prisma_client_1.prisma.user.create({
             data: Object.assign(Object.assign({}, req.body), { username: username }),
