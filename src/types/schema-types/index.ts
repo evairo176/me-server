@@ -2,10 +2,10 @@ export interface UserInterface {
   id: string;
   email: string;
   username: string;
-  fullname: string;
+  name: string;
   password: string;
   bio?: string;
-  profile_img?: string;
+  image?: string;
   youtube?: string;
   instagram?: string;
   facebook?: string;

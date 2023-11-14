@@ -29,10 +29,10 @@ exports.authMiddleware = expressAsyncHandler((req, res, next) => __awaiter(void 
                     },
                     select: {
                         id: true,
-                        fullname: true,
+                        name: true,
                         email: true,
                         username: true,
-                        profile_img: true,
+                        image: true,
                     },
                 });
                 // attach the user to the request object

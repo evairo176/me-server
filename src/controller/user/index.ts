@@ -50,6 +50,7 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
   const username = generateFromEmail(req?.body?.email, 5);
   const salt = await bcrypt.genSaltSync(10);
   const password = await bcrypt.hashSync(req?.body?.password, salt);
+  // console.log(password);
 
   try {
     const user = await prisma.user.create({
@@ -57,7 +58,7 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
         ...req.body,
         username: username,
         password: password,
-        profile_img: `https://api.dicebear.com/6.x/${
+        image: `https://api.dicebear.com/6.x/${
           profile_imgs_collections_list[
             Math.floor(Math.random() * profile_imgs_collections_list.length)
           ]
@@ -78,6 +79,40 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
 });
 
 //----------------------------------------------
+// Register with provider
+//----------------------------------------------
+
+export const userRegisterProviderController = expressAsyncHandler(
+  async (req, res) => {
+    // check if user is already registered
+    const userExists = await prisma.user.findFirst({
+      where: { email: req?.body?.email },
+    });
+
+    if (userExists) throw new Error("user already registered");
+    // add three random digits
+    const username = generateFromEmail(req?.body?.email, 5);
+    // console.log(password);
+    console.log(req?.body);
+
+    try {
+      const user = await prisma.user.create({
+        data: {
+          ...req.body,
+          username: username,
+        },
+      });
+      res.json({
+        message: "Register Successfully",
+        user: user,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  }
+);
+
+//----------------------------------------------
 // Login
 //----------------------------------------------
 
@@ -95,7 +130,7 @@ export const userLoginController = expressAsyncHandler(async (req, res) => {
 
   if (!isPasswordMatched) throw new Error("Password not matched");
 
-  if (userFound && isPasswordMatched) {
+  if (userFound) {
     const token = generateToken(userFound?.id);
     const refreshToken = generateRefreshToken(userFound?.id);
 
@@ -103,10 +138,10 @@ export const userLoginController = expressAsyncHandler(async (req, res) => {
       message: "Login Successfully",
       user: {
         id: userFound?.id,
-        fullname: userFound?.fullname,
+        name: userFound?.name,
         email: userFound?.email,
         username: userFound?.username,
-        profile_img: userFound?.profile_img,
+        image: userFound?.image,
       },
       token: token,
       refreshToken: refreshToken,
@@ -116,6 +151,53 @@ export const userLoginController = expressAsyncHandler(async (req, res) => {
     throw new Error("Invalid login credentials");
   }
 });
+
+//----------------------------------------------
+// Login with provider example google
+//----------------------------------------------
+
+export const userLoginProviderController = expressAsyncHandler(
+  async (req, res) => {
+    const { email, password } = req.body;
+    // check if user exists
+    const userFound = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    if (!userFound) throw new Error("User not exist");
+
+    if (password) {
+      const isPasswordMatched = await bcrypt.compare(
+        password,
+        userFound?.password
+      );
+
+      if (!isPasswordMatched) throw new Error("Password not matched");
+    }
+
+    if (userFound) {
+      const token = generateToken(userFound?.id);
+      const refreshToken = generateRefreshToken(userFound?.id);
+
+      res.json({
+        message: "Login Successfully",
+        user: {
+          id: userFound?.id,
+          name: userFound?.name,
+          email: userFound?.email,
+          username: userFound?.username,
+          image: userFound?.image,
+        },
+        token: token,
+        refreshToken: refreshToken,
+      });
+    } else {
+      res.status(401);
+      throw new Error("Invalid login credentials");
+    }
+  }
+);
 
 //----------------------------------------------
 // Refresh token
@@ -131,6 +213,34 @@ export const refreshTokenController = expressAsyncHandler(
     try {
       const decoded = jwt.verify(prevToken, process.env.JWT_KEY);
       const token = generateToken(decoded.id);
+
+      res.json({
+        id: decoded.id,
+        token: token,
+        expired: Date.now() / 1000 + (decoded.exp - decoded.iat),
+      });
+    } catch (error) {
+      throw new Error("Invalid refresh token.");
+    }
+  }
+);
+
+//----------------------------------------------
+// create token
+//----------------------------------------------
+
+export const createTokenController = expressAsyncHandler(
+  async (req: any, res: any) => {
+    const id = req.body.id;
+    if (!id) {
+      throw new Error("Email empty");
+    }
+
+    try {
+      const token = jwt.sign({ id: id }, process.env.JWT_KEY, {
+        expiresIn: "1d",
+      });
+      const decoded = jwt.verify(id, process.env.JWT_KEY);
 
       res.json({
         id: decoded.id,
@@ -181,3 +291,38 @@ export const detailUserController = expressAsyncHandler(async (req, res) => {
     res.status(500).json(error);
   }
 });
+
+//----------------------------------------------
+// fetch user by email
+//----------------------------------------------
+
+export const fetchUserByEmailController = expressAsyncHandler(
+  async (req, res) => {
+    const { email } = req.body;
+
+    // check id
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    // console.log(user);
+
+    if (!user) {
+      res.json({
+        message: "Get detail user successfully",
+        user: false,
+      });
+    }
+
+    try {
+      res.json({
+        message: "Get detail user successfully",
+        user: true,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  }
+);

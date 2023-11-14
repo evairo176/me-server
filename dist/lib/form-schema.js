@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginSchema = exports.RegisterSchema = exports.UpdateBlogSchema = exports.CreateBlogSchema = void 0;
+exports.LoginProviderSchema = exports.LoginSchema = exports.RegisterProviderSchema = exports.RegisterSchema = exports.UpdateBlogSchema = exports.CreateBlogSchema = void 0;
 const zod_1 = require("zod");
 exports.CreateBlogSchema = zod_1.z.object({
     title: zod_1.z
@@ -21,7 +21,7 @@ exports.UpdateBlogSchema = zod_1.z.object({
     banner: zod_1.z.any(),
 });
 exports.RegisterSchema = zod_1.z.object({
-    fullname: zod_1.z
+    name: zod_1.z
         .string({ required_error: "Title is required" })
         .min(3, { message: "Title must be at least 3 characters" }),
     email: zod_1.z.string({ required_error: "Email is required" }).email(),
@@ -29,10 +29,19 @@ exports.RegisterSchema = zod_1.z.object({
         .string({ required_error: "Password is required" })
         .min(6, { message: "password must be at least 6 characters" }),
 });
+exports.RegisterProviderSchema = zod_1.z.object({
+    name: zod_1.z
+        .string({ required_error: "Title is required" })
+        .min(3, { message: "Title must be at least 3 characters" }),
+    email: zod_1.z.string({ required_error: "Email is required" }).email(),
+});
 exports.LoginSchema = zod_1.z.object({
     email: zod_1.z.string({ required_error: "Email is required" }).email(),
     password: zod_1.z
         .string({ required_error: "Password is required" })
         .min(6, { message: "password must be at least 6 characters" }),
+});
+exports.LoginProviderSchema = zod_1.z.object({
+    email: zod_1.z.string({ required_error: "Email is required" }).email(),
 });
 //# sourceMappingURL=form-schema.js.map

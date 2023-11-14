@@ -24,10 +24,10 @@ export const authMiddleware = expressAsyncHandler(
             },
             select: {
               id: true,
-              fullname: true,
+              name: true,
               email: true,
               username: true,
-              profile_img: true,
+              image: true,
             },
           });
 

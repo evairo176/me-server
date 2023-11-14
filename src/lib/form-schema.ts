@@ -21,7 +21,7 @@ export const UpdateBlogSchema = z.object({
 });
 
 export const RegisterSchema = z.object({
-  fullname: z
+  name: z
     .string({ required_error: "Title is required" })
     .min(3, { message: "Title must be at least 3 characters" }),
   email: z.string({ required_error: "Email is required" }).email(),
@@ -30,9 +30,20 @@ export const RegisterSchema = z.object({
     .min(6, { message: "password must be at least 6 characters" }),
 });
 
+export const RegisterProviderSchema = z.object({
+  name: z
+    .string({ required_error: "Title is required" })
+    .min(3, { message: "Title must be at least 3 characters" }),
+  email: z.string({ required_error: "Email is required" }).email(),
+});
+
 export const LoginSchema = z.object({
   email: z.string({ required_error: "Email is required" }).email(),
   password: z
     .string({ required_error: "Password is required" })
     .min(6, { message: "password must be at least 6 characters" }),
+});
+
+export const LoginProviderSchema = z.object({
+  email: z.string({ required_error: "Email is required" }).email(),
 });
