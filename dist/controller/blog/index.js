@@ -445,7 +445,7 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
         });
     }
     else {
-        tagsRelevant = prisma_client_1.prisma.tag.findMany({
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
             orderBy: {
                 Blogs: {
                     _count: "desc",
@@ -457,7 +457,8 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
             take: 10,
         });
     }
-    const exampleTagsRelevant = tagsRelevant.map((tag) => (Object.assign(Object.assign({}, tag), { blogCount: tag.Blogs.length })));
+    console.log(tagsRelevant);
+    const exampleTagsRelevant = tagsRelevant === null || tagsRelevant === void 0 ? void 0 : tagsRelevant.map((tag) => (Object.assign(Object.assign({}, tag), { blogCount: tag.Blogs.length })));
     try {
         res.json({
             message: `Showed data detail blog successfully`,

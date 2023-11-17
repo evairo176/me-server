@@ -489,7 +489,7 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
       take: 10,
     });
   } else {
-    tagsRelevant = prisma.tag.findMany({
+    tagsRelevant = await prisma.tag.findMany({
       orderBy: {
         Blogs: {
           _count: "desc",
@@ -502,7 +502,9 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
     });
   }
 
-  const exampleTagsRelevant = tagsRelevant.map((tag: any) => ({
+  console.log(tagsRelevant);
+
+  const exampleTagsRelevant = tagsRelevant?.map((tag: any) => ({
     ...tag,
     blogCount: tag.Blogs.length,
   }));
