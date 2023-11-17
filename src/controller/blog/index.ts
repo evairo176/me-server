@@ -440,6 +440,11 @@ export const fetchBlogBySlugController = expressAsyncHandler(
 
 export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
   let blog: any[] = [];
+  const categorySlug = req.query.category
+    ? (req.query.category as string)
+    : undefined;
+  const user = req.query.user_id ? (req.query.user_id as string) : undefined;
+  const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
   if (req.query.lang !== "") {
     blog = await prisma.blog.findMany({
       include: {
@@ -453,7 +458,14 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
       where: {
         draft: true,
         lang: req.query.lang as string,
+        Categories: {
+          slug: categorySlug,
+        },
+        Author: {
+          id: user,
+        },
       },
+      take: limit,
     });
   } else {
     blog = await prisma.blog.findMany({
@@ -467,7 +479,14 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
       },
       where: {
         draft: true,
+        Categories: {
+          slug: categorySlug,
+        },
+        Author: {
+          id: user,
+        },
       },
+      take: limit,
     });
   }
   if (!blog) throw new Error(`Blog not found`);
@@ -502,8 +521,6 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
     });
   }
 
-  console.log(tagsRelevant);
-
   const exampleTagsRelevant = tagsRelevant?.map((tag: any) => ({
     ...tag,
     blogCount: tag.Blogs.length,
@@ -519,6 +536,101 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
     res.status(500).json(error);
   }
 });
+
+//----------------------------------------------
+// fetch all blog by slug category
+//----------------------------------------------
+
+export const fetchAllblogBySlugCategoryController = expressAsyncHandler(
+  async (req, res) => {
+    const categorySlug = req.query.categorySlug as string;
+    let blog: any[] = [];
+    if (req.query.lang !== "") {
+      blog = await prisma.blog.findMany({
+        include: {
+          Tags: true,
+          Categories: true,
+          Author: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          draft: true,
+          lang: req.query.lang as string,
+          Categories: {
+            slug: categorySlug ? categorySlug : "",
+          },
+        },
+      });
+    } else {
+      blog = await prisma.blog.findMany({
+        include: {
+          Tags: true,
+          Categories: true,
+          Author: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          draft: true,
+          Categories: {
+            slug: categorySlug ? categorySlug : "",
+          },
+        },
+      });
+    }
+    if (!blog) throw new Error(`Blog not found`);
+
+    let tagsRelevant: any = [];
+    if (req.query.lang !== "") {
+      tagsRelevant = await prisma.tag.findMany({
+        where: {
+          lang: req.query.lang as string,
+        },
+        orderBy: {
+          Blogs: {
+            _count: "desc",
+          },
+        },
+        include: {
+          Blogs: true,
+        },
+        take: 10,
+      });
+    } else {
+      tagsRelevant = await prisma.tag.findMany({
+        orderBy: {
+          Blogs: {
+            _count: "desc",
+          },
+        },
+        include: {
+          Blogs: true,
+        },
+        take: 10,
+      });
+    }
+
+    console.log(tagsRelevant);
+
+    const exampleTagsRelevant = tagsRelevant?.map((tag: any) => ({
+      ...tag,
+      blogCount: tag.Blogs.length,
+    }));
+
+    try {
+      res.json({
+        message: `Showed data detail blog successfully`,
+        blog: blog,
+        tagsRelevant: exampleTagsRelevant,
+      });
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  }
+);
 
 //----------------------------------------------
 // fetch all blog by category slug

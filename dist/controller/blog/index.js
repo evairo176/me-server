@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchAllblogByCategorySlugController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
+exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
@@ -394,6 +394,11 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
 //----------------------------------------------
 exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let blog = [];
+    const categorySlug = req.query.category
+        ? req.query.category
+        : undefined;
+    const user = req.query.user_id ? req.query.user_id : undefined;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     if (req.query.lang !== "") {
         blog = yield prisma_client_1.prisma.blog.findMany({
             include: {
@@ -407,6 +412,104 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
             where: {
                 draft: true,
                 lang: req.query.lang,
+                Categories: {
+                    slug: categorySlug,
+                },
+                Author: {
+                    id: user,
+                },
+            },
+            take: limit,
+        });
+    }
+    else {
+        blog = yield prisma_client_1.prisma.blog.findMany({
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            where: {
+                draft: true,
+                Categories: {
+                    slug: categorySlug,
+                },
+                Author: {
+                    id: user,
+                },
+            },
+            take: limit,
+        });
+    }
+    if (!blog)
+        throw new Error(`Blog not found`);
+    let tagsRelevant = [];
+    if (req.query.lang !== "") {
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
+            where: {
+                lang: req.query.lang,
+            },
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: true,
+            },
+            take: 10,
+        });
+    }
+    else {
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: true,
+            },
+            take: 10,
+        });
+    }
+    const exampleTagsRelevant = tagsRelevant === null || tagsRelevant === void 0 ? void 0 : tagsRelevant.map((tag) => (Object.assign(Object.assign({}, tag), { blogCount: tag.Blogs.length })));
+    try {
+        res.json({
+            message: `Showed data detail blog successfully`,
+            blog: blog,
+            tagsRelevant: exampleTagsRelevant,
+        });
+    }
+    catch (error) {
+        res.status(500).json(error);
+    }
+}));
+//----------------------------------------------
+// fetch all blog by slug category
+//----------------------------------------------
+exports.fetchAllblogBySlugCategoryController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const categorySlug = req.query.categorySlug;
+    let blog = [];
+    if (req.query.lang !== "") {
+        blog = yield prisma_client_1.prisma.blog.findMany({
+            include: {
+                Tags: true,
+                Categories: true,
+                Author: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            where: {
+                draft: true,
+                lang: req.query.lang,
+                Categories: {
+                    slug: categorySlug ? categorySlug : "",
+                },
             },
         });
     }
@@ -422,6 +525,9 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
             },
             where: {
                 draft: true,
+                Categories: {
+                    slug: categorySlug ? categorySlug : "",
+                },
             },
         });
     }

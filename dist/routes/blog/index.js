@@ -22,7 +22,7 @@ exports.blogsRoutes.post("/delete/multiple", auth_1.authMiddleware, blog_1.delet
 // fetch all blog by user id
 exports.blogsRoutes.get("/user/:id", blog_1.fetchAllblogByUserController);
 // fetch all blog by category slug
-exports.blogsRoutes.get("/category/:categorySlug", blog_1.fetchAllblogByCategorySlugController);
+exports.blogsRoutes.get("/category/:categorySlug", blog_1.fetchAllblogBySlugCategoryController);
 // fetch defail blog by slug
 exports.blogsRoutes.get("/detail/:slug", blog_1.fetchBlogBySlugController);
 // fetch defail all blog

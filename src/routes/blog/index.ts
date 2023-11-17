@@ -4,6 +4,7 @@ import {
   deleteController,
   editController,
   fetchAllblogByCategorySlugController,
+  fetchAllblogBySlugCategoryController,
   fetchAllblogByUserController,
   fetchAllblogController,
   fetchBlogBySlugController,
@@ -45,7 +46,7 @@ blogsRoutes.get("/user/:id", fetchAllblogByUserController);
 // fetch all blog by category slug
 blogsRoutes.get(
   "/category/:categorySlug",
-  fetchAllblogByCategorySlugController
+  fetchAllblogBySlugCategoryController
 );
 
 // fetch defail blog by slug
