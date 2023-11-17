@@ -308,6 +308,7 @@ exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req
 // fetch single blog by slug
 //----------------------------------------------
 exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { slug } = req.params;
     let blog = {};
     if (req.query.lang !== "") {
@@ -337,10 +338,51 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
     }
     if (!blog)
         throw new Error(`Blog not found`);
+    const idTagsArray = (_a = blog === null || blog === void 0 ? void 0 : blog.Tags) === null || _a === void 0 ? void 0 : _a.map((item) => item.id);
+    let tagsRelevant = [];
+    if (req.query.lang !== "") {
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
+            where: {
+                id: {
+                    notIn: idTagsArray,
+                },
+                lang: req.query.lang,
+            },
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: true,
+            },
+            take: 10,
+        });
+    }
+    else {
+        tagsRelevant = prisma_client_1.prisma.tag.findMany({
+            where: {
+                id: {
+                    notIn: idTagsArray,
+                },
+            },
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: true,
+            },
+            take: 10,
+        });
+    }
+    const exampleTagsRelevant = tagsRelevant.map((tag) => (Object.assign(Object.assign({}, tag), { blogCount: tag.Blogs.length })));
     try {
         res.json({
             message: `Showed data detail blog successfully`,
             blog: blog,
+            tagsRelevant: exampleTagsRelevant,
         });
     }
     catch (error) {
@@ -385,10 +427,42 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
     }
     if (!blog)
         throw new Error(`Blog not found`);
+    let tagsRelevant = [];
+    if (req.query.lang !== "") {
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
+            where: {
+                lang: req.query.lang,
+            },
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: true,
+            },
+            take: 10,
+        });
+    }
+    else {
+        tagsRelevant = prisma_client_1.prisma.tag.findMany({
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: true,
+            },
+            take: 10,
+        });
+    }
+    const exampleTagsRelevant = tagsRelevant.map((tag) => (Object.assign(Object.assign({}, tag), { blogCount: tag.Blogs.length })));
     try {
         res.json({
             message: `Showed data detail blog successfully`,
             blog: blog,
+            tagsRelevant: exampleTagsRelevant,
         });
     }
     catch (error) {
@@ -450,10 +524,54 @@ exports.fetchAllblogByCategorySlugController = (0, express_async_handler_1.defau
     }
     if (!blog)
         throw new Error(`Blog not found`);
+    let tagsRelevant = [];
+    if (req.query.lang !== "") {
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
+            where: {
+                lang: req.query.lang,
+            },
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: {
+                    where: {
+                        Categories: {
+                            slug: categorySlug,
+                        },
+                    },
+                },
+            },
+            take: 10,
+        });
+    }
+    else {
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
+            orderBy: {
+                Blogs: {
+                    _count: "desc",
+                },
+            },
+            include: {
+                Blogs: {
+                    where: {
+                        Categories: {
+                            slug: categorySlug,
+                        },
+                    },
+                },
+            },
+            take: 10,
+        });
+    }
+    const exampleTagsRelevant = tagsRelevant.map((tag) => (Object.assign(Object.assign({}, tag), { blogCount: tag.Blogs.length })));
     try {
         res.json({
             message: `Showed data detail blog successfully`,
             blog: blog,
+            tagsRelevant: exampleTagsRelevant,
         });
     }
     catch (error) {

@@ -8,7 +8,7 @@ const express_1 = __importDefault(require("express"));
 const category_1 = require("../../../src/controller/category");
 exports.categoriesRoutes = express_1.default.Router();
 // fetch all category
-exports.categoriesRoutes.get("/", category_1.findAllController);
+exports.categoriesRoutes.get("/", category_1.AllCtegoryController);
 // fetch category by slug
 exports.categoriesRoutes.get("/:categorySlug", category_1.fetchCategoryBySlugController);
 //# sourceMappingURL=index.js.map

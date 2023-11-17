@@ -2,10 +2,10 @@ import expressAsyncHandler from "express-async-handler";
 import { prisma } from "../../lib/prisma-client";
 
 //----------------------------------------------
-// detail category
+// all category
 //----------------------------------------------
 
-export const findAllController = expressAsyncHandler(async (req, res) => {
+export const AllCtegoryController = expressAsyncHandler(async (req, res) => {
   try {
     let category: any[] = [];
     if (req.query.lang !== "") {
