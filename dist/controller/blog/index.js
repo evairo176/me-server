@@ -360,7 +360,7 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
         });
     }
     else {
-        tagsRelevant = prisma_client_1.prisma.tag.findMany({
+        tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
             where: {
                 id: {
                     notIn: idTagsArray,

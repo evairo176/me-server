@@ -399,7 +399,7 @@ export const fetchBlogBySlugController = expressAsyncHandler(
         take: 10,
       });
     } else {
-      tagsRelevant = prisma.tag.findMany({
+      tagsRelevant = await prisma.tag.findMany({
         where: {
           id: {
             notIn: idTagsArray,
