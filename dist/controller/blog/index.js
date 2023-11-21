@@ -17,7 +17,6 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
 const helper_1 = require("../../helper/helper");
-const library_1 = require("@prisma/client/runtime/library");
 const fs = require("fs");
 //----------------------------------------------
 // create blog
@@ -61,14 +60,7 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
         });
     }
     catch (error) {
-        if (error instanceof library_1.PrismaClientValidationError) {
-            res.status(500).json(error);
-            console.error("Prisma Validation Error Message:", error.message);
-        }
-        else {
-            console.error("Non-Prisma Validation Error:", error);
-        }
-        res.status(500).json(error);
+        (0, helper_1.responseError)(error, res);
     }
 }));
 //----------------------------------------------
@@ -168,14 +160,7 @@ exports.updateController = (0, express_async_handler_1.default)((req, res) => __
         });
     }
     catch (error) {
-        if (error instanceof library_1.PrismaClientValidationError) {
-            res.statusCode.json(error);
-            console.error("Prisma Validation Error Message:", error.message);
-        }
-        else {
-            console.error("Non-Prisma Validation Error:", error);
-        }
-        res.status(500).json(error);
+        (0, helper_1.responseError)(error, res);
     }
 }));
 //----------------------------------------------

@@ -63,6 +63,44 @@ model User {
   sessions      Session[]
 }
 
+model Role {
+  id      String  @id @default(cuid())
+  name    String   @unique
+  status  Boolean @default(true)
+  menus   MenuRole[]
+  users   UserRole[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Menu {
+  id      String  @id @default(cuid())
+  name    String  @unique
+  url     String  
+  status  Boolean
+  roles   MenuRole[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MenuRole {
+  id      String  @id @default(cuid())
+  menu    Menu     @relation(fields: [menuId], references: [id])
+  menuId  String
+  role    Role     @relation(fields: [roleId], references: [id])
+  roleId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserRole {
+  id     String  @id @default(cuid())
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+  role   Role    @relation(fields: [roleId], references: [id])
+  roleId String
+}
+
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -131,40 +169,3 @@ model Tag {
   
 }
 
-model Role {
-  id      String  @id @default(cuid())
-  name    String   @unique
-  status  Boolean @default(true)
-  menus   MenuRole[]
-  users   UserRole[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Menu {
-  id      String  @id @default(cuid())
-  name    String  @unique
-  url     String  
-  status  Boolean
-  roles   MenuRole[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model MenuRole {
-  id      String  @id @default(cuid())
-  menu    Menu     @relation(fields: [menuId], references: [id])
-  menuId  String
-  role    Role     @relation(fields: [roleId], references: [id])
-  roleId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model UserRole {
-  id     String  @id @default(cuid())
-  user   User    @relation(fields: [userId], references: [id])
-  userId String
-  role   Role    @relation(fields: [roleId], references: [id])
-  roleId String
-}

@@ -12,13 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteImage = exports.deleteImageSupabase = exports.supabaseUpload = exports.sharpUpload = exports.deleteFile = exports.generateRefreshToken = exports.generateToken = void 0;
+exports.responseError = exports.paginateResults = exports.deleteImage = exports.deleteImageSupabase = exports.supabaseUpload = exports.sharpUpload = exports.deleteFile = exports.generateRefreshToken = exports.generateToken = void 0;
 const path_1 = __importDefault(require("path"));
 const sharp_1 = __importDefault(require("sharp"));
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const multer = require("multer");
 const supabase_1 = require("../../src/lib/supabase");
+const library_1 = require("@prisma/client/runtime/library");
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_KEY, { expiresIn: "1d" });
 };
@@ -117,6 +118,94 @@ const deleteImage = (imagePath) => __awaiter(void 0, void 0, void 0, function* (
     });
 });
 exports.deleteImage = deleteImage;
+const paginateResults = (req, res, model) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const page = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 2;
+    const last_page = req.query.last_page;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const result = {
+        totalCount: 0,
+        totalPage: 0,
+        currentPage: 0,
+        data: [],
+        currentCountPerPage: 0,
+        range: 0,
+    };
+    try {
+        const totalCount = yield model.count();
+        const totalPage = Math.ceil(totalCount / limit);
+        const currentPage = page || 0;
+        if (page < 0) {
+            return res.status(400).json("Page value should not be negative");
+        }
+        result.totalCount = totalCount;
+        result.totalPage = totalPage;
+        result.currentPage = currentPage;
+        if (page === 1 && !last_page) {
+            result.next = {
+                page: page + 1,
+                limit: limit,
+            };
+        }
+        else if (endIndex < totalCount && !last_page) {
+            result.next = {
+                page: page + 1,
+                limit: limit,
+            };
+        }
+        else if (startIndex > 0 && !last_page) {
+            result.previous = {
+                page: page - 1,
+                limit: limit,
+            };
+        }
+        else if (last_page === "true" && page === totalPage) {
+            result.last = {
+                page: totalPage,
+                limit: limit,
+            };
+        }
+        else {
+            return res.status(404).json({ error: "Resource not found" });
+        }
+        result.data = yield model.findMany({
+            take: limit,
+            skip: startIndex,
+            orderBy: {
+                id: "desc",
+            },
+        });
+        res.paginatedResult = result;
+        result.currentCountPerPage = Object.keys(result.data).length;
+        result.range = (currentPage - 1) * limit;
+        return res.status(200).json(result);
+    }
+    catch (err) {
+        console.error("error", err);
+        return res.status(500).json(err);
+    }
+});
+exports.paginateResults = paginateResults;
+const responseError = (error, res, status) => {
+    const resStatus = status ? status : 500;
+    if (error instanceof library_1.PrismaClientValidationError) {
+        console.error("Prisma Validation Error Message:");
+        res.status(resStatus).json({
+            message: `Prisma Validation Error Message`,
+            error: error.message,
+        });
+    }
+    else {
+        console.error("Non-Prisma Validation Error:", error);
+        res.status(resStatus).json({
+            message: `Non-Prisma Validation Error`,
+            error: error,
+        });
+    }
+};
+exports.responseError = responseError;
 // // Function to save a new image with a specified path and name
 // function saveImage(tempImagePath, newName) {
 //   const destinationPath = path.join('public/images/blogs', newName);

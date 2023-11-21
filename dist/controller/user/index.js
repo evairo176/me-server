@@ -65,7 +65,7 @@ exports.userRegisterController = (0, express_async_handler_1.default)((req, res)
     // console.log(password);
     try {
         const user = yield prisma_client_1.prisma.user.create({
-            data: Object.assign(Object.assign({}, req.body), { username: username, password: password, image: `https://api.dicebear.com/6.x/${profile_imgs_collections_list[Math.floor(Math.random() * profile_imgs_collections_list.length)]}/svg?seed=${profile_imgs_name_list[Math.floor(Math.random() * profile_imgs_name_list.length)]}` }),
+            data: Object.assign(Object.assign({}, req.body), { username: username, password: password, image: `https://api.dicebear.com/6.x/${profile_imgs_collections_list[Math.floor(Math.random() * profile_imgs_collections_list.length)]}/png?seed=${profile_imgs_name_list[Math.floor(Math.random() * profile_imgs_name_list.length)]}` }),
         });
         res.json({
             message: "Register Successfully",
@@ -73,7 +73,7 @@ exports.userRegisterController = (0, express_async_handler_1.default)((req, res)
         });
     }
     catch (error) {
-        res.status(500).json(error);
+        (0, helper_1.responseError)(error, res);
     }
 }));
 //----------------------------------------------
@@ -101,7 +101,7 @@ exports.userRegisterProviderController = (0, express_async_handler_1.default)((r
         });
     }
     catch (error) {
-        res.status(500).json(error);
+        (0, helper_1.responseError)(error, res);
     }
 }));
 //----------------------------------------------

@@ -10,6 +10,7 @@ import { usersRoutes } from "./routes/user";
 import { categoriesRoutes } from "./routes/category";
 import { rolesRoutes } from "./routes/role";
 import { languagesRoutes } from "./routes/language";
+import { menusRoutes } from "./routes/menu";
 
 dotenv.config();
 
@@ -37,6 +38,9 @@ app.use("/api/category", categoriesRoutes);
 
 // roles routes
 app.use("/api/role", rolesRoutes);
+
+// menus routes
+app.use("/api/menu", menusRoutes);
 
 // languages routes
 app.use("/api/language", languagesRoutes);

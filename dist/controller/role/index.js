@@ -12,12 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteController = exports.fetchAllRoleController = exports.updateRoleController = exports.getDetailRoleController = exports.createController = void 0;
+exports.deleteController = exports.fetchAllRoleController = exports.updateRoleController = exports.getDetailRoleController = exports.addRoleToUserController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const prisma_client_1 = require("../../../src/lib/prisma-client");
-const library_1 = require("@prisma/client/runtime/library");
+const helper_1 = require("../../../src/helper/helper");
 //----------------------------------------------
-// create blog
+// create role
 //----------------------------------------------
 exports.createController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const checkIfExist = yield prisma_client_1.prisma.role.findFirst({
@@ -38,14 +38,36 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
         });
     }
     catch (error) {
-        if (error instanceof library_1.PrismaClientValidationError) {
-            res.status(500).json(error);
-            console.error("Prisma Validation Error Message:", error.message);
+        (0, helper_1.responseError)(error, res);
+    }
+}));
+//----------------------------------------------
+// add role to user
+//----------------------------------------------
+exports.addRoleToUserController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const { roleIds } = req.body;
+        // Validate userId and roleIds
+        const user = yield prisma_client_1.prisma.user.findUnique({
+            where: { id: userId },
+        });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
         }
-        else {
-            console.error("Non-Prisma Validation Error:", error);
+        // Create UserRole records to associate roles with the user
+        for (const roleId of roleIds) {
+            yield prisma_client_1.prisma.userRole.create({
+                data: {
+                    user: { connect: { id: userId } },
+                    role: { connect: { id: roleId } },
+                },
+            });
         }
-        res.status(500).json(error);
+        res.status(200).json({ message: "Roles added to user successfully" });
+    }
+    catch (error) {
+        (0, helper_1.responseError)(error, res);
     }
 }));
 //----------------------------------------------

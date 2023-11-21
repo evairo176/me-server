@@ -47,3 +47,14 @@ export const LoginSchema = z.object({
 export const LoginProviderSchema = z.object({
   email: z.string({ required_error: "Email is required" }).email(),
 });
+
+export const createMenuSchema = z.object({
+  name: z
+    .string({ required_error: "Name is required" })
+    .min(3, { message: "Name must be at least 3 characters" }),
+  url: z
+    .string({ required_error: "Name is required" })
+    .min(3, { message: "Name must be at least 3 characters" }),
+  status: z.boolean().default(false),
+  // roles: z.string().array().optional(),
+});

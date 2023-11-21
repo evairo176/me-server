@@ -1,7 +1,11 @@
 import expressAsyncHandler from "express-async-handler";
 import { prisma } from "../../lib/prisma-client";
 import { generateFromEmail, generateUsername } from "unique-username-generator";
-import { generateRefreshToken, generateToken } from "../../helper/helper";
+import {
+  generateRefreshToken,
+  generateToken,
+  responseError,
+} from "../../helper/helper";
 import { Request } from "express";
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
@@ -62,7 +66,7 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
           profile_imgs_collections_list[
             Math.floor(Math.random() * profile_imgs_collections_list.length)
           ]
-        }/svg?seed=${
+        }/png?seed=${
           profile_imgs_name_list[
             Math.floor(Math.random() * profile_imgs_name_list.length)
           ]
@@ -74,7 +78,7 @@ export const userRegisterController = expressAsyncHandler(async (req, res) => {
       user: user,
     });
   } catch (error) {
-    res.status(500).json(error);
+    responseError(error, res);
   }
 });
 
@@ -107,7 +111,7 @@ export const userRegisterProviderController = expressAsyncHandler(
         user: user,
       });
     } catch (error) {
-      res.status(500).json(error);
+      responseError(error, res);
     }
   }
 );

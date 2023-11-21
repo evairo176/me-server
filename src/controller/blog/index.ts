@@ -2,7 +2,11 @@ import { Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import slug from "slug";
 import { prisma } from "../../lib/prisma-client";
-import { deleteImageSupabase, supabaseUpload } from "../../helper/helper";
+import {
+  deleteImageSupabase,
+  responseError,
+  supabaseUpload,
+} from "../../helper/helper";
 import { PrismaClientValidationError } from "@prisma/client/runtime/library";
 const fs = require("fs");
 
@@ -66,13 +70,7 @@ export const createController = expressAsyncHandler(
         blog: blog,
       });
     } catch (error) {
-      if (error instanceof PrismaClientValidationError) {
-        res.status(500).json(error);
-        console.error("Prisma Validation Error Message:", error.message);
-      } else {
-        console.error("Non-Prisma Validation Error:", error);
-      }
-      res.status(500).json(error);
+      responseError(error, res);
     }
   }
 );
@@ -195,13 +193,7 @@ export const updateController = expressAsyncHandler(
         blog: blogUpdate,
       });
     } catch (error) {
-      if (error instanceof PrismaClientValidationError) {
-        res.statusCode.json(error);
-        console.error("Prisma Validation Error Message:", error.message);
-      } else {
-        console.error("Non-Prisma Validation Error:", error);
-      }
-      res.status(500).json(error);
+      responseError(error, res);
     }
   }
 );
