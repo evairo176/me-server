@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteController = exports.fetchAllRoleController = exports.updateRoleController = exports.getDetailRoleController = exports.addRoleToUserController = exports.createController = void 0;
+exports.deleteController = exports.fetchAllRoleController = exports.updateRoleController = exports.getDetailRoleController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const prisma_client_1 = require("../../../src/lib/prisma-client");
 const helper_1 = require("../../../src/helper/helper");
@@ -36,35 +36,6 @@ exports.createController = (0, express_async_handler_1.default)((req, res) => __
             message: `Role was created successfully`,
             role: role,
         });
-    }
-    catch (error) {
-        (0, helper_1.responseError)(error, res);
-    }
-}));
-//----------------------------------------------
-// add role to user
-//----------------------------------------------
-exports.addRoleToUserController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { userId } = req.params;
-        const { roleIds } = req.body;
-        // Validate userId and roleIds
-        const user = yield prisma_client_1.prisma.user.findUnique({
-            where: { id: userId },
-        });
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        // Create UserRole records to associate roles with the user
-        for (const roleId of roleIds) {
-            yield prisma_client_1.prisma.userRole.create({
-                data: {
-                    user: { connect: { id: userId } },
-                    role: { connect: { id: roleId } },
-                },
-            });
-        }
-        res.status(200).json({ message: "Roles added to user successfully" });
     }
     catch (error) {
         (0, helper_1.responseError)(error, res);
@@ -126,10 +97,6 @@ exports.updateRoleController = (0, express_async_handler_1.default)((req, res) =
 //----------------------------------------------
 exports.fetchAllRoleController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const role = yield prisma_client_1.prisma.role.findMany({
-        include: {
-            users: true,
-            menus: true,
-        },
         orderBy: {
             createdAt: "desc",
         },

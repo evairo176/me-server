@@ -37,43 +37,6 @@ export const createController = expressAsyncHandler(
 );
 
 //----------------------------------------------
-// add role to user
-//----------------------------------------------
-
-export const addRoleToUserController = expressAsyncHandler(
-  async (req: any, res: any) => {
-    try {
-      const { userId } = req.params;
-      const { roleIds } = req.body;
-
-      // Validate userId and roleIds
-
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-      });
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      // Create UserRole records to associate roles with the user
-      for (const roleId of roleIds) {
-        await prisma.userRole.create({
-          data: {
-            user: { connect: { id: userId } },
-            role: { connect: { id: roleId } },
-          },
-        });
-      }
-
-      res.status(200).json({ message: "Roles added to user successfully" });
-    } catch (error) {
-      responseError(error, res);
-    }
-  }
-);
-
-//----------------------------------------------
 // get detail role
 //----------------------------------------------
 
@@ -137,10 +100,6 @@ export const updateRoleController = expressAsyncHandler(async (req, res) => {
 
 export const fetchAllRoleController = expressAsyncHandler(async (req, res) => {
   const role = await prisma.role.findMany({
-    include: {
-      users: true,
-      menus: true,
-    },
     orderBy: {
       createdAt: "desc",
     },

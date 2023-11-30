@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
+exports.readController = exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
@@ -668,6 +668,35 @@ exports.fetchAllblogByCategorySlugController = (0, express_async_handler_1.defau
     }
     catch (error) {
         res.status(500).json(error);
+    }
+}));
+//----------------------------------------------
+// read blog
+//----------------------------------------------
+exports.readController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const blog = yield prisma_client_1.prisma.blog.findFirst({
+        where: {
+            id: id,
+        },
+    });
+    if (!blog) {
+        throw new Error(`Blog not found`);
+    }
+    try {
+        const blogUpdate = yield prisma_client_1.prisma.blog.update({
+            data: Object.assign(Object.assign({}, req.body), { total_reads: blog.total_reads + 1 }),
+            where: {
+                id: id,
+            },
+        });
+        res.json({
+            message: `Read blog successfully`,
+            blog: blogUpdate,
+        });
+    }
+    catch (error) {
+        (0, helper_1.responseError)(error, res);
     }
 }));
 //# sourceMappingURL=index.js.map

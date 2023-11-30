@@ -740,3 +740,40 @@ export const fetchAllblogByCategorySlugController = expressAsyncHandler(
     }
   }
 );
+
+//----------------------------------------------
+// read blog
+//----------------------------------------------
+
+export const readController = expressAsyncHandler(
+  async (req: any, res: any) => {
+    const { id } = req.params;
+
+    const blog = await prisma.blog.findFirst({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!blog) {
+      throw new Error(`Blog not found`);
+    }
+    try {
+      const blogUpdate = await prisma.blog.update({
+        data: {
+          ...req.body,
+          total_reads: blog.total_reads + 1,
+        },
+        where: {
+          id: id,
+        },
+      });
+      res.json({
+        message: `Read blog successfully`,
+        blog: blogUpdate,
+      });
+    } catch (error) {
+      responseError(error, res);
+    }
+  }
+);

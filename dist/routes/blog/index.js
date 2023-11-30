@@ -19,6 +19,8 @@ exports.blogsRoutes.get("/:id", blog_1.editController);
 exports.blogsRoutes.put("/:id", auth_1.authMiddleware, uploads_1.photoUpload.single("image"), (0, error_1.validate)(form_schema_1.UpdateBlogSchema), blog_1.updateController);
 // delete blog
 exports.blogsRoutes.post("/delete/multiple", auth_1.authMiddleware, blog_1.deleteController);
+// delete blog
+exports.blogsRoutes.put("/read/:id", blog_1.readController);
 // fetch all blog by user id
 exports.blogsRoutes.get("/user/:id", blog_1.fetchAllblogByUserController);
 // fetch all blog by category slug

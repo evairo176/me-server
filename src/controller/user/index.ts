@@ -104,6 +104,7 @@ export const userRegisterProviderController = expressAsyncHandler(
         data: {
           ...req.body,
           username: username,
+          roleId: "cloi9ke8n000anl44pd0z72tt",
         },
       });
       res.json({
@@ -127,6 +128,13 @@ export const userLoginController = expressAsyncHandler(async (req, res) => {
     where: {
       email: email,
     },
+    include: {
+      Role: {
+        include: {
+          Permission: true,
+        },
+      },
+    },
   });
   if (!userFound) throw new Error("User not exist");
 
@@ -146,6 +154,7 @@ export const userLoginController = expressAsyncHandler(async (req, res) => {
         email: userFound?.email,
         username: userFound?.username,
         image: userFound?.image,
+        Role: userFound?.Role,
       },
       token: token,
       refreshToken: refreshToken,
@@ -167,6 +176,13 @@ export const userLoginProviderController = expressAsyncHandler(
     const userFound = await prisma.user.findFirst({
       where: {
         email: email,
+      },
+      include: {
+        Role: {
+          include: {
+            Permission: true,
+          },
+        },
       },
     });
     if (!userFound) throw new Error("User not exist");
@@ -192,6 +208,7 @@ export const userLoginProviderController = expressAsyncHandler(
           email: userFound?.email,
           username: userFound?.username,
           image: userFound?.image,
+          Role: userFound?.Role,
         },
         token: token,
         refreshToken: refreshToken,
@@ -315,18 +332,14 @@ export const fetchUserByEmailController = expressAsyncHandler(
 
     if (!user) {
       res.json({
-        message: "Get detail user successfully",
+        message: "User Not Found",
         user: false,
       });
-    }
-
-    try {
+    } else {
       res.json({
         message: "Get detail user successfully",
         user: true,
       });
-    } catch (error) {
-      res.status(500).json(error);
     }
   }
 );

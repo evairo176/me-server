@@ -93,7 +93,7 @@ exports.userRegisterProviderController = (0, express_async_handler_1.default)((r
     // console.log(req?.body);
     try {
         const user = yield prisma_client_1.prisma.user.create({
-            data: Object.assign(Object.assign({}, req.body), { username: username }),
+            data: Object.assign(Object.assign({}, req.body), { username: username, roleId: "cloi9ke8n000anl44pd0z72tt" }),
         });
         res.json({
             message: "Register Successfully",
@@ -114,6 +114,13 @@ exports.userLoginController = (0, express_async_handler_1.default)((req, res) =>
         where: {
             email: email,
         },
+        include: {
+            Role: {
+                include: {
+                    Permission: true,
+                },
+            },
+        },
     });
     if (!userFound)
         throw new Error("User not exist");
@@ -131,6 +138,7 @@ exports.userLoginController = (0, express_async_handler_1.default)((req, res) =>
                 email: userFound === null || userFound === void 0 ? void 0 : userFound.email,
                 username: userFound === null || userFound === void 0 ? void 0 : userFound.username,
                 image: userFound === null || userFound === void 0 ? void 0 : userFound.image,
+                Role: userFound === null || userFound === void 0 ? void 0 : userFound.Role,
             },
             token: token,
             refreshToken: refreshToken,
@@ -151,6 +159,13 @@ exports.userLoginProviderController = (0, express_async_handler_1.default)((req,
         where: {
             email: email,
         },
+        include: {
+            Role: {
+                include: {
+                    Permission: true,
+                },
+            },
+        },
     });
     if (!userFound)
         throw new Error("User not exist");
@@ -170,6 +185,7 @@ exports.userLoginProviderController = (0, express_async_handler_1.default)((req,
                 email: userFound === null || userFound === void 0 ? void 0 : userFound.email,
                 username: userFound === null || userFound === void 0 ? void 0 : userFound.username,
                 image: userFound === null || userFound === void 0 ? void 0 : userFound.image,
+                Role: userFound === null || userFound === void 0 ? void 0 : userFound.Role,
             },
             token: token,
             refreshToken: refreshToken,
@@ -273,18 +289,15 @@ exports.fetchUserByEmailController = (0, express_async_handler_1.default)((req, 
     // console.log(user);
     if (!user) {
         res.json({
-            message: "Get detail user successfully",
+            message: "User Not Found",
             user: false,
         });
     }
-    try {
+    else {
         res.json({
             message: "Get detail user successfully",
             user: true,
         });
-    }
-    catch (error) {
-        res.status(500).json(error);
     }
 }));
 //# sourceMappingURL=index.js.map

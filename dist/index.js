@@ -14,7 +14,6 @@ const user_1 = require("./routes/user");
 const category_1 = require("./routes/category");
 const role_1 = require("./routes/role");
 const language_1 = require("./routes/language");
-const menu_1 = require("./routes/menu");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
@@ -34,8 +33,8 @@ app.use("/api/users", user_1.usersRoutes);
 app.use("/api/category", category_1.categoriesRoutes);
 // roles routes
 app.use("/api/role", role_1.rolesRoutes);
-// menus routes
-app.use("/api/menu", menu_1.menusRoutes);
+// // menus routes
+// app.use("/api/menu", menusRoutes);
 // languages routes
 app.use("/api/language", language_1.languagesRoutes);
 // error handler

@@ -8,6 +8,7 @@ import {
   fetchAllblogByUserController,
   fetchAllblogController,
   fetchBlogBySlugController,
+  readController,
   updateController,
 } from "../../controller/blog";
 import { photoUpload } from "../../middleware/uploads";
@@ -39,6 +40,9 @@ blogsRoutes.put(
 
 // delete blog
 blogsRoutes.post("/delete/multiple", authMiddleware, deleteController);
+
+// delete blog
+blogsRoutes.put("/read/:id", readController);
 
 // fetch all blog by user id
 blogsRoutes.get("/user/:id", fetchAllblogByUserController);

@@ -39,8 +39,8 @@ app.use("/api/category", categoriesRoutes);
 // roles routes
 app.use("/api/role", rolesRoutes);
 
-// menus routes
-app.use("/api/menu", menusRoutes);
+// // menus routes
+// app.use("/api/menu", menusRoutes);
 
 // languages routes
 app.use("/api/language", languagesRoutes);
