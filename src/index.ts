@@ -10,7 +10,6 @@ import { usersRoutes } from "./routes/user";
 import { categoriesRoutes } from "./routes/category";
 import { rolesRoutes } from "./routes/role";
 import { languagesRoutes } from "./routes/language";
-import { menusRoutes } from "./routes/menu";
 
 dotenv.config();
 
