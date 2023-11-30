@@ -29,4 +29,6 @@ exports.blogsRoutes.get("/category/:categorySlug", blog_1.fetchAllblogBySlugCate
 exports.blogsRoutes.get("/detail/:slug", blog_1.fetchBlogBySlugController);
 // fetch defail all blog
 exports.blogsRoutes.get("/", blog_1.fetchAllblogController);
+// fetch defail all blog
+exports.blogsRoutes.post("/like", auth_1.authMiddleware, blog_1.likeBlogController);
 //# sourceMappingURL=index.js.map

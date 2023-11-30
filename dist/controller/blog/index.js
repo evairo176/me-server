@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.readController = exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
+exports.likeBlogController = exports.readController = exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
@@ -306,6 +306,7 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                 Tags: true,
                 Categories: true,
                 Author: true,
+                Likes: true,
             },
         });
     }
@@ -318,6 +319,7 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                 Tags: true,
                 Categories: true,
                 Author: true,
+                Likes: true,
             },
         });
     }
@@ -363,6 +365,7 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
         });
     }
     const exampleTagsRelevant = tagsRelevant.map((tag) => (Object.assign(Object.assign({}, tag), { blogCount: tag.Blogs.length })));
+    blog.total_likes = blog.Likes.length;
     try {
         res.json({
             message: `Showed data detail blog successfully`,
@@ -697,6 +700,59 @@ exports.readController = (0, express_async_handler_1.default)((req, res) => __aw
     }
     catch (error) {
         (0, helper_1.responseError)(error, res);
+    }
+}));
+//----------------------------------------------
+// like blog
+//----------------------------------------------
+exports.likeBlogController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const { blogId } = req.body;
+    // Check if the user and blog exist
+    const user = yield prisma_client_1.prisma.user.findUnique({
+        where: { id: id },
+    });
+    const blog = yield prisma_client_1.prisma.blog.findUnique({
+        where: { id: blogId },
+    });
+    if (!user || !blog) {
+        res.status(404).json({ error: "User or blog not found" });
+    }
+    // / Check if the user has already liked the blog
+    const existingLike = yield prisma_client_1.prisma.like.findFirst({
+        where: {
+            userId: id,
+            blogId: blogId,
+        },
+    });
+    if (existingLike) {
+        const deleteLike = yield prisma_client_1.prisma.like.delete({
+            where: {
+                id: existingLike.id,
+            },
+        });
+        res.json({
+            message: `Unlike successfully`,
+            like: deleteLike,
+        });
+    }
+    else {
+        try {
+            // Create a new like
+            const newLike = yield prisma_client_1.prisma.like.create({
+                data: {
+                    userId: id,
+                    blogId: blogId,
+                },
+            });
+            res.json({
+                message: `Like successfully`,
+                like: newLike,
+            });
+        }
+        catch (error) {
+            (0, helper_1.responseError)(error, res);
+        }
     }
 }));
 //# sourceMappingURL=index.js.map

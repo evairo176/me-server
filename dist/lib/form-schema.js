@@ -34,6 +34,9 @@ exports.RegisterProviderSchema = zod_1.z.object({
         .string({ required_error: "Title is required" })
         .min(3, { message: "Title must be at least 3 characters" }),
     email: zod_1.z.string({ required_error: "Email is required" }).email(),
+    password: zod_1.z
+        .string({ required_error: "Password is required" })
+        .min(6, { message: "password must be at least 6 characters" }),
 });
 exports.LoginSchema = zod_1.z.object({
     email: zod_1.z.string({ required_error: "Email is required" }).email(),

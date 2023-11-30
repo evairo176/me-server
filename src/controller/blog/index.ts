@@ -354,6 +354,7 @@ export const fetchBlogBySlugController = expressAsyncHandler(
           Tags: true,
           Categories: true,
           Author: true,
+          Likes: true,
         },
       });
     } else {
@@ -365,6 +366,7 @@ export const fetchBlogBySlugController = expressAsyncHandler(
           Tags: true,
           Categories: true,
           Author: true,
+          Likes: true,
         },
       });
     }
@@ -413,6 +415,8 @@ export const fetchBlogBySlugController = expressAsyncHandler(
       ...tag,
       blogCount: tag.Blogs.length,
     }));
+
+    blog.total_likes = blog.Likes.length;
 
     try {
       res.json({
@@ -774,6 +778,67 @@ export const readController = expressAsyncHandler(
       });
     } catch (error) {
       responseError(error, res);
+    }
+  }
+);
+
+//----------------------------------------------
+// like blog
+//----------------------------------------------
+export const likeBlogController = expressAsyncHandler(
+  async (req: any, res: Response) => {
+    const { id } = req.user;
+    const { blogId } = req.body;
+
+    // Check if the user and blog exist
+    const user = await prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    const blog = await prisma.blog.findUnique({
+      where: { id: blogId },
+    });
+
+    if (!user || !blog) {
+      res.status(404).json({ error: "User or blog not found" });
+    }
+
+    // / Check if the user has already liked the blog
+    const existingLike = await prisma.like.findFirst({
+      where: {
+        userId: id,
+        blogId: blogId,
+      },
+    });
+
+    if (existingLike) {
+      const deleteLike = await prisma.like.delete({
+        where: {
+          id: existingLike.id,
+        },
+      });
+
+      res.json({
+        message: `Unlike successfully`,
+        like: deleteLike,
+      });
+    } else {
+      try {
+        // Create a new like
+        const newLike = await prisma.like.create({
+          data: {
+            userId: id,
+            blogId: blogId,
+          },
+        });
+
+        res.json({
+          message: `Like successfully`,
+          like: newLike,
+        });
+      } catch (error) {
+        responseError(error, res);
+      }
     }
   }
 );

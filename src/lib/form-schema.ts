@@ -35,6 +35,9 @@ export const RegisterProviderSchema = z.object({
     .string({ required_error: "Title is required" })
     .min(3, { message: "Title must be at least 3 characters" }),
   email: z.string({ required_error: "Email is required" }).email(),
+  password: z
+    .string({ required_error: "Password is required" })
+    .min(6, { message: "password must be at least 6 characters" }),
 });
 
 export const LoginSchema = z.object({

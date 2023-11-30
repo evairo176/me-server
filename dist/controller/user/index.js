@@ -93,7 +93,7 @@ exports.userRegisterProviderController = (0, express_async_handler_1.default)((r
     // console.log(req?.body);
     try {
         const user = yield prisma_client_1.prisma.user.create({
-            data: Object.assign(Object.assign({}, req.body), { username: username, roleId: "cloi9ke8n000anl44pd0z72tt" }),
+            data: Object.assign(Object.assign({}, req.body), { username: username, roleId: "cloi9ke8n000anl44pd0z72tt", password: req.body.password }),
         });
         res.json({
             message: "Register Successfully",

@@ -8,6 +8,7 @@ import {
   fetchAllblogByUserController,
   fetchAllblogController,
   fetchBlogBySlugController,
+  likeBlogController,
   readController,
   updateController,
 } from "../../controller/blog";
@@ -58,3 +59,6 @@ blogsRoutes.get("/detail/:slug", fetchBlogBySlugController);
 
 // fetch defail all blog
 blogsRoutes.get("/", fetchAllblogController);
+
+// fetch defail all blog
+blogsRoutes.post("/like", authMiddleware, likeBlogController);
