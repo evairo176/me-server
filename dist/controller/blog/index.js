@@ -295,12 +295,13 @@ exports.fetchAllblogByUserController = (0, express_async_handler_1.default)((req
 exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { slug } = req.params;
+    const lang = req.query.lang ? req.query.lang : undefined;
     let blog = {};
     if (req.query.lang !== "") {
         blog = yield prisma_client_1.prisma.blog.findFirst({
             where: {
                 slug: slug,
-                lang: req.query.lang,
+                lang: lang,
             },
             include: {
                 Tags: true,
@@ -333,15 +334,29 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                 id: {
                     notIn: idTagsArray,
                 },
-                lang: req.query.lang,
+                lang: lang,
+                Blogs: {
+                    some: {
+                        Categories: {
+                            id: blog.categoryId,
+                        },
+                    },
+                },
+            },
+            include: {
+                Language: true,
+                Blogs: {
+                    where: {
+                        Categories: {
+                            id: blog.categoryId,
+                        },
+                    },
+                },
             },
             orderBy: {
                 Blogs: {
                     _count: "desc",
                 },
-            },
-            include: {
-                Blogs: true,
             },
             take: 10,
         });
@@ -352,14 +367,28 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                 id: {
                     notIn: idTagsArray,
                 },
+                Blogs: {
+                    some: {
+                        Categories: {
+                            id: blog.categoryId,
+                        },
+                    },
+                },
+            },
+            include: {
+                Language: true,
+                Blogs: {
+                    where: {
+                        Categories: {
+                            id: blog.categoryId,
+                        },
+                    },
+                },
             },
             orderBy: {
                 Blogs: {
                     _count: "desc",
                 },
-            },
-            include: {
-                Blogs: true,
             },
             take: 10,
         });
@@ -439,27 +468,57 @@ exports.fetchAllblogController = (0, express_async_handler_1.default)((req, res)
         tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
             where: {
                 lang: req.query.lang,
+                Blogs: {
+                    some: {
+                        Categories: {
+                            slug: categorySlug,
+                        },
+                    },
+                },
+            },
+            include: {
+                Language: true,
+                Blogs: {
+                    where: {
+                        Categories: {
+                            slug: categorySlug,
+                        },
+                    },
+                },
             },
             orderBy: {
                 Blogs: {
                     _count: "desc",
                 },
-            },
-            include: {
-                Blogs: true,
             },
             take: 10,
         });
     }
     else {
         tagsRelevant = yield prisma_client_1.prisma.tag.findMany({
+            where: {
+                Blogs: {
+                    some: {
+                        Categories: {
+                            slug: categorySlug,
+                        },
+                    },
+                },
+            },
+            include: {
+                Language: true,
+                Blogs: {
+                    where: {
+                        Categories: {
+                            slug: categorySlug,
+                        },
+                    },
+                },
+            },
             orderBy: {
                 Blogs: {
                     _count: "desc",
                 },
-            },
-            include: {
-                Blogs: true,
             },
             take: 10,
         });

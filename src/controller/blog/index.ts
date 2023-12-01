@@ -342,13 +342,13 @@ export const fetchAllblogByUserController = expressAsyncHandler(
 export const fetchBlogBySlugController = expressAsyncHandler(
   async (req, res) => {
     const { slug } = req.params;
-
+    const lang = req.query.lang ? (req.query.lang as string) : undefined;
     let blog: any = {};
     if (req.query.lang !== "") {
       blog = await prisma.blog.findFirst({
         where: {
           slug: slug,
-          lang: req.query.lang as string,
+          lang: lang,
         },
         include: {
           Tags: true,
@@ -380,15 +380,29 @@ export const fetchBlogBySlugController = expressAsyncHandler(
           id: {
             notIn: idTagsArray,
           },
-          lang: req.query.lang as string,
+          lang: lang,
+          Blogs: {
+            some: {
+              Categories: {
+                id: blog.categoryId,
+              },
+            },
+          },
+        },
+        include: {
+          Language: true,
+          Blogs: {
+            where: {
+              Categories: {
+                id: blog.categoryId,
+              },
+            },
+          },
         },
         orderBy: {
           Blogs: {
             _count: "desc",
           },
-        },
-        include: {
-          Blogs: true,
         },
         take: 10,
       });
@@ -398,14 +412,28 @@ export const fetchBlogBySlugController = expressAsyncHandler(
           id: {
             notIn: idTagsArray,
           },
+          Blogs: {
+            some: {
+              Categories: {
+                id: blog.categoryId,
+              },
+            },
+          },
+        },
+        include: {
+          Language: true,
+          Blogs: {
+            where: {
+              Categories: {
+                id: blog.categoryId,
+              },
+            },
+          },
         },
         orderBy: {
           Blogs: {
             _count: "desc",
           },
-        },
-        include: {
-          Blogs: true,
         },
         take: 10,
       });
@@ -492,26 +520,56 @@ export const fetchAllblogController = expressAsyncHandler(async (req, res) => {
     tagsRelevant = await prisma.tag.findMany({
       where: {
         lang: req.query.lang as string,
+        Blogs: {
+          some: {
+            Categories: {
+              slug: categorySlug,
+            },
+          },
+        },
+      },
+      include: {
+        Language: true,
+        Blogs: {
+          where: {
+            Categories: {
+              slug: categorySlug,
+            },
+          },
+        },
       },
       orderBy: {
         Blogs: {
           _count: "desc",
         },
-      },
-      include: {
-        Blogs: true,
       },
       take: 10,
     });
   } else {
     tagsRelevant = await prisma.tag.findMany({
+      where: {
+        Blogs: {
+          some: {
+            Categories: {
+              slug: categorySlug,
+            },
+          },
+        },
+      },
+      include: {
+        Language: true,
+        Blogs: {
+          where: {
+            Categories: {
+              slug: categorySlug,
+            },
+          },
+        },
+      },
       orderBy: {
         Blogs: {
           _count: "desc",
         },
-      },
-      include: {
-        Blogs: true,
       },
       take: 10,
     });
