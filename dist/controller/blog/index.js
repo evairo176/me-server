@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.likeBlogController = exports.readController = exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
+exports.showCommentBlogController = exports.likeBlogController = exports.readController = exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
@@ -308,6 +308,24 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                 Categories: true,
                 Author: true,
                 Likes: true,
+                Comment: {
+                    include: {
+                        User: true,
+                        Replay: {
+                            include: {
+                                User: true,
+                                Replay: {
+                                    include: {
+                                        User: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    where: {
+                        parentId: null,
+                    },
+                },
             },
         });
     }
@@ -321,6 +339,24 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                 Categories: true,
                 Author: true,
                 Likes: true,
+                Comment: {
+                    include: {
+                        User: true,
+                        Replay: {
+                            include: {
+                                User: true,
+                                Replay: {
+                                    include: {
+                                        User: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    where: {
+                        parentId: null,
+                    },
+                },
             },
         });
     }
@@ -812,6 +848,50 @@ exports.likeBlogController = (0, express_async_handler_1.default)((req, res) => 
         catch (error) {
             (0, helper_1.responseError)(error, res);
         }
+    }
+}));
+//----------------------------------------------
+// show comment blog
+//----------------------------------------------
+exports.showCommentBlogController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { blogId } = req.body;
+    const blog = yield prisma_client_1.prisma.blog.findUnique({
+        where: { id: blogId },
+    });
+    if (!blog) {
+        res.status(404).json({ error: "Blog not found" });
+    }
+    try {
+        // show comment blog
+        const commentBlog = yield prisma_client_1.prisma.blog.findFirst({
+            where: {
+                id: blogId,
+            },
+            include: {
+                Comment: {
+                    include: {
+                        User: true,
+                        Replay: {
+                            include: {
+                                User: true,
+                                Replay: {
+                                    include: {
+                                        User: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+        res.json({
+            message: `Like successfully`,
+            blogComment: commentBlog,
+        });
+    }
+    catch (error) {
+        (0, helper_1.responseError)(error, res);
     }
 }));
 //# sourceMappingURL=index.js.map

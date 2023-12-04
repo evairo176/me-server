@@ -355,6 +355,24 @@ export const fetchBlogBySlugController = expressAsyncHandler(
           Categories: true,
           Author: true,
           Likes: true,
+          Comment: {
+            include: {
+              User: true,
+              Replay: {
+                include: {
+                  User: true,
+                  Replay: {
+                    include: {
+                      User: true,
+                    },
+                  },
+                },
+              },
+            },
+            where: {
+              parentId: null,
+            },
+          },
         },
       });
     } else {
@@ -367,6 +385,24 @@ export const fetchBlogBySlugController = expressAsyncHandler(
           Categories: true,
           Author: true,
           Likes: true,
+          Comment: {
+            include: {
+              User: true,
+              Replay: {
+                include: {
+                  User: true,
+                  Replay: {
+                    include: {
+                      User: true,
+                    },
+                  },
+                },
+              },
+            },
+            where: {
+              parentId: null,
+            },
+          },
         },
       });
     }
@@ -897,6 +933,56 @@ export const likeBlogController = expressAsyncHandler(
       } catch (error) {
         responseError(error, res);
       }
+    }
+  }
+);
+
+//----------------------------------------------
+// show comment blog
+//----------------------------------------------
+export const showCommentBlogController = expressAsyncHandler(
+  async (req: any, res: Response) => {
+    const { blogId } = req.body;
+
+    const blog = await prisma.blog.findUnique({
+      where: { id: blogId },
+    });
+
+    if (!blog) {
+      res.status(404).json({ error: "Blog not found" });
+    }
+
+    try {
+      // show comment blog
+      const commentBlog = await prisma.blog.findFirst({
+        where: {
+          id: blogId,
+        },
+        include: {
+          Comment: {
+            include: {
+              User: true,
+              Replay: {
+                include: {
+                  User: true,
+                  Replay: {
+                    include: {
+                      User: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      res.json({
+        message: `Like successfully`,
+        blogComment: commentBlog,
+      });
+    } catch (error) {
+      responseError(error, res);
     }
   }
 );

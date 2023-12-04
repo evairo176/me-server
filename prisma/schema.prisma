@@ -63,6 +63,7 @@ model User {
   Role      Role?   @relation(fields: [roleId], references: [id])
   roleId String?
   Likes     Like[]
+  Comment   Comment[]
 }
 
 model Role {
@@ -131,7 +132,8 @@ model Blog {
   Language      Language?   @relation(fields: [lang], references: [code])
   Author      User?   @relation(fields: [authorId], references: [id])
   Categories      Category?   @relation(fields: [categoryId], references: [id])
-  Likes             Like[]
+  Likes     Like[]
+  Comment   Comment[]
   total_comments Int   @default(0) 
   total_reads Int   @default(0) 
   total_parent_comments Int   @default(0) 
@@ -149,6 +151,21 @@ model Like {
   User              User          @relation(fields: [userId], references: [id])
   Blog              Blog          @relation(fields: [blogId], references: [id])
 }
+
+model Comment {
+  id        String        @id @default(cuid())
+  content   String
+  userId    String
+  parentId  String?
+  blogId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  Blog      Blog     @relation(fields: [blogId], references: [id])
+  Parent    Comment? @relation("CommentToComment", fields: [parentId], references: [id])
+  Replay    Comment[] @relation("CommentToComment")
+}
+
 
 
 model Tag {
