@@ -1,6 +1,8 @@
 import express from "express";
 import {
+  createCommentBlogController,
   createController,
+  deleteCommentBlogController,
   deleteController,
   editController,
   fetchAllblogByCategorySlugController,
@@ -62,3 +64,9 @@ blogsRoutes.get("/", fetchAllblogController);
 
 // fetch defail all blog
 blogsRoutes.post("/like", authMiddleware, likeBlogController);
+
+// comment blog
+blogsRoutes.post("/comment", authMiddleware, createCommentBlogController);
+
+// delete comment blog
+blogsRoutes.delete("/comment/:id", authMiddleware, deleteCommentBlogController);

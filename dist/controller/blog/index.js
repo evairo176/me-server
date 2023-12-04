@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.showCommentBlogController = exports.likeBlogController = exports.readController = exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
+exports.deleteCommentBlogController = exports.createCommentBlogController = exports.showCommentBlogController = exports.likeBlogController = exports.readController = exports.fetchAllblogByCategorySlugController = exports.fetchAllblogBySlugCategoryController = exports.fetchAllblogController = exports.fetchBlogBySlugController = exports.fetchAllblogByUserController = exports.deleteController = exports.updateController = exports.editController = exports.createController = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const slug_1 = __importDefault(require("slug"));
 const prisma_client_1 = require("../../lib/prisma-client");
@@ -322,9 +322,6 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                             },
                         },
                     },
-                    where: {
-                        parentId: null,
-                    },
                 },
             },
         });
@@ -352,9 +349,6 @@ exports.fetchBlogBySlugController = (0, express_async_handler_1.default)((req, r
                                 },
                             },
                         },
-                    },
-                    where: {
-                        parentId: null,
                     },
                 },
             },
@@ -888,6 +882,56 @@ exports.showCommentBlogController = (0, express_async_handler_1.default)((req, r
         res.json({
             message: `Like successfully`,
             blogComment: commentBlog,
+        });
+    }
+    catch (error) {
+        (0, helper_1.responseError)(error, res);
+    }
+}));
+//----------------------------------------------
+// create comment blog
+//----------------------------------------------
+exports.createCommentBlogController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    const content = req.body.content;
+    const blogId = req.body.blogId;
+    const parentId = req.body.parentId;
+    try {
+        const comment = yield prisma_client_1.prisma.comment.create({
+            data: Object.assign(Object.assign({}, req.body), { content: content, blogId: blogId, userId: id, parentId: parentId }),
+        });
+        res.json({
+            message: `Comment was created successfully`,
+            comment: comment,
+        });
+    }
+    catch (error) {
+        (0, helper_1.responseError)(error, res);
+    }
+}));
+//----------------------------------------------
+// delete comment blog
+//----------------------------------------------
+exports.deleteCommentBlogController = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { id } = req.params;
+    // check validation
+    const checkIfExist = yield prisma_client_1.prisma.comment.findUnique({
+        where: {
+            id: id,
+        },
+    });
+    if (!checkIfExist || !user)
+        throw new Error(`Comment or User not found`);
+    try {
+        const deleteComment = yield prisma_client_1.prisma.comment.delete({
+            where: {
+                id: id,
+            },
+        });
+        res.json({
+            message: `Deleted Comment successfully`,
+            comment: deleteComment,
         });
     }
     catch (error) {

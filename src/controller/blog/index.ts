@@ -369,9 +369,6 @@ export const fetchBlogBySlugController = expressAsyncHandler(
                 },
               },
             },
-            where: {
-              parentId: null,
-            },
           },
         },
       });
@@ -398,9 +395,6 @@ export const fetchBlogBySlugController = expressAsyncHandler(
                   },
                 },
               },
-            },
-            where: {
-              parentId: null,
             },
           },
         },
@@ -980,6 +974,73 @@ export const showCommentBlogController = expressAsyncHandler(
       res.json({
         message: `Like successfully`,
         blogComment: commentBlog,
+      });
+    } catch (error) {
+      responseError(error, res);
+    }
+  }
+);
+
+//----------------------------------------------
+// create comment blog
+//----------------------------------------------
+export const createCommentBlogController = expressAsyncHandler(
+  async (req: any, res: Response) => {
+    const { id } = req.user;
+
+    const content = req.body.content;
+    const blogId = req.body.blogId;
+    const parentId = req.body.parentId;
+    console.log({ content, blogId, parentId });
+
+    try {
+      const comment = await prisma.comment.create({
+        data: {
+          ...req.body,
+          content: content,
+          blogId: blogId,
+          userId: id,
+          parentId: parentId,
+        },
+      });
+
+      res.json({
+        message: `Comment was created successfully`,
+        comment: comment,
+      });
+    } catch (error) {
+      responseError(error, res);
+    }
+  }
+);
+
+//----------------------------------------------
+// delete comment blog
+//----------------------------------------------
+
+export const deleteCommentBlogController = expressAsyncHandler(
+  async (req: any, res: Response) => {
+    const user = req.user;
+    const { id } = req.params;
+
+    // check validation
+    const checkIfExist = await prisma.comment.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!checkIfExist || !user) throw new Error(`Comment or User not found`);
+
+    try {
+      const deleteComment = await prisma.comment.delete({
+        where: {
+          id: id,
+        },
+      });
+      res.json({
+        message: `Deleted Comment successfully`,
+        comment: deleteComment,
       });
     } catch (error) {
       responseError(error, res);

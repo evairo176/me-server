@@ -31,4 +31,8 @@ exports.blogsRoutes.get("/detail/:slug", blog_1.fetchBlogBySlugController);
 exports.blogsRoutes.get("/", blog_1.fetchAllblogController);
 // fetch defail all blog
 exports.blogsRoutes.post("/like", auth_1.authMiddleware, blog_1.likeBlogController);
+// comment blog
+exports.blogsRoutes.post("/comment", auth_1.authMiddleware, blog_1.createCommentBlogController);
+// delete comment blog
+exports.blogsRoutes.delete("/comment/:id", auth_1.authMiddleware, blog_1.deleteCommentBlogController);
 //# sourceMappingURL=index.js.map
