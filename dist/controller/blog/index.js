@@ -896,6 +896,7 @@ exports.createCommentBlogController = (0, express_async_handler_1.default)((req,
     const content = req.body.content;
     const blogId = req.body.blogId;
     const parentId = req.body.parentId;
+    console.log({ content, blogId, parentId });
     try {
         const comment = yield prisma_client_1.prisma.comment.create({
             data: Object.assign(Object.assign({}, req.body), { content: content, blogId: blogId, userId: id, parentId: parentId }),

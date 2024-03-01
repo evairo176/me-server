@@ -26,7 +26,7 @@
   "author": "evairo",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^5.4.2",
+    "@prisma/client": "^5.10.2",
     "@supabase/supabase-js": "^2.38.3",
     "@types/http-errors": "^2.0.3",
     "bcrypt": "^5.1.1",
