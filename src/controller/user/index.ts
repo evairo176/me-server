@@ -104,7 +104,7 @@ export const userRegisterProviderController = expressAsyncHandler(
         data: {
           ...req.body,
           username: username,
-          roleId: "cloi9ke8n000anl44pd0z72tt",
+          roleId: "clv4lw7bu0000rm2q249kox2k",
           password: req.body.password,
         },
       });
